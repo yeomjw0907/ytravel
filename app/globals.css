@@ -1,0 +1,167 @@
+@import "@fontsource/pretendard/400.css";
+@import "@fontsource/pretendard/500.css";
+@import "@fontsource/pretendard/600.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Ytravel 디자인 토큰 (05-design-guide, 06-design-system)
+ * 본문/UI: Pretendard, Display: Cormorant Garamond. 절제된 프리미엄 톤.
+ */
+:root {
+  --wt-font-body: "Pretendard", system-ui, -apple-system, sans-serif;
+  /* Brand (05-design-guide) */
+  --wt-color-brand-900: #050606;
+  --wt-color-brand-800: #032844;
+  --wt-color-brand-700: #04345a;
+  --wt-color-brand-500: #06588c;
+  --wt-color-brand-300: #626979;
+  --wt-color-brand-100: #c8c6c6;
+
+  /* Neutral - Cloud Paper / Moon Dust / Night Ink (05 §3, 06 §3.1) */
+  --wt-color-bg: #f5f3f0;
+  --wt-color-surface: #e7e4df;
+  --wt-color-panel: #ffffff;
+  --wt-color-text-primary: #1b1f27;
+  --wt-color-text-secondary: #626979;
+  --wt-color-border: #d8d4cf;
+
+  /* Semantic */
+  --wt-color-success-bg: #e7f3ec;
+  --wt-color-success-text: #2d6a4f;
+  --wt-color-warning-bg: #f6eedc;
+  --wt-color-warning-text: #8b6508;
+  --wt-color-danger-bg: #f3e4e4;
+  --wt-color-danger-text: #a63a3a;
+  --wt-color-info-bg: #eaf1f6;
+  --wt-color-info-text: #04345a;
+
+  /* Spacing */
+  --wt-space-1: 4px;
+  --wt-space-2: 8px;
+  --wt-space-3: 12px;
+  --wt-space-4: 16px;
+  --wt-space-5: 20px;
+  --wt-space-6: 24px;
+  --wt-space-8: 32px;
+  --wt-space-10: 40px;
+  --wt-space-12: 48px;
+  --wt-space-16: 64px;
+  --wt-space-20: 80px;
+
+  /* Radius */
+  --wt-radius-sm: 10px;
+  --wt-radius-md: 16px;
+  --wt-radius-lg: 24px;
+  --wt-radius-xl: 32px;
+  --wt-radius-pill: 999px;
+
+  /* Shadow */
+  --wt-shadow-soft: 0 10px 30px rgba(5, 6, 6, 0.08);
+  --wt-shadow-card: 0 6px 18px rgba(5, 6, 6, 0.06);
+  --wt-shadow-focus: 0 0 0 4px rgba(6, 88, 140, 0.18);
+
+  /* Typography (06-design-system 3.2) - font vars set in layout */
+  --wt-text-display-xl: 64px;
+  --wt-text-display-lg: 48px;
+  --wt-text-h1: 36px;
+  --wt-text-h2: 28px;
+  --wt-text-h3: 22px;
+  --wt-text-body-lg: 18px;
+  --wt-text-body-md: 16px;
+  --wt-text-body-sm: 14px;
+  --wt-text-caption: 12px;
+  --wt-leading-display: 1.05;
+  --wt-leading-heading: 1.2;
+  --wt-leading-body: 1.6;
+  --wt-leading-caption: 1.4;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+    text-rendering: optimizeLegibility;
+    /* 헤드라인·디스플레이 텍스트도 Pretendard로 통일 (기존 Cormorant 대체) */
+    --wt-font-display: var(--wt-font-body);
+  }
+  body {
+    font-family: var(--wt-font-body);
+    background-color: var(--wt-color-bg);
+    color: var(--wt-color-text-primary);
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  [class*="font-display"] {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Hero 전용 그라디언트 (다른 페이지에서 이미지 없이 사용 시) */
+.wt-hero-gradient {
+  background: linear-gradient(135deg, #050606 0%, #04345a 42%, #06588c 100%);
+  background-attachment: scroll;
+}
+
+/* 히어로 검색 카드: 라벨·입력 필드 스타일 */
+.hero-search-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wt-color-text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+.hero-search-form input[type="text"],
+.hero-search-form input[type="date"],
+.hero-search-form select,
+.hero-search-form button[type="button"] {
+  min-height: 48px;
+  border-radius: var(--wt-radius-md);
+  font-size: 15px;
+}
+.hero-search-form .rounded-wt-md {
+  border-radius: var(--wt-radius-md);
+}
+
+/* 섹션 구분용 얇은 보더 (Calm Precision) */
+.wt-section-divider {
+  border-bottom: 1px solid var(--wt-color-border);
+}
+
+/* Semantic status 재사용 스타일 (06-design-system §6) - 배지/필 등 */
+@layer components {
+  .wt-status-success {
+    background-color: var(--wt-color-success-bg);
+    color: var(--wt-color-success-text);
+  }
+  .wt-status-warning {
+    background-color: var(--wt-color-warning-bg);
+    color: var(--wt-color-warning-text);
+  }
+  .wt-status-danger {
+    background-color: var(--wt-color-danger-bg);
+    color: var(--wt-color-danger-text);
+  }
+  .wt-status-info {
+    background-color: var(--wt-color-info-bg);
+    color: var(--wt-color-info-text);
+  }
+  .wt-status-neutral {
+    background-color: var(--wt-color-surface);
+    color: var(--wt-color-text-secondary);
+  }
+}
+
+/* 포커스·트랜지션 (06-design-system) */
+@layer utilities {
+  .focus-wt {
+    @apply outline-none transition-[box-shadow] duration-150 focus-visible:ring-4 focus-visible:ring-[rgba(6,88,140,0.2)];
+  }
+  .wt-transition-base {
+    @apply transition-colors duration-200;
+  }
+}
