@@ -60,7 +60,7 @@ export function HeroSection() {
         {/* 검색 카드 */}
         <div className="mt-wt-10 w-full max-w-4xl md:mt-wt-14">
           <div className="rounded-2xl border border-white/25 bg-white/97 px-wt-5 py-wt-6 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.35)] backdrop-blur-sm sm:px-wt-6 sm:py-wt-7 md:rounded-wt-xl md:px-wt-8 md:py-wt-8">
-            <p className="mb-wt-4 font-body text-sm font-semibold text-wt-text-secondary md:mb-wt-5 md:text-wt-body-md">
+            <p className="mb-wt-4 font-body text-lg font-bold text-white md:mb-wt-5 md:text-xl">
               검색 조건
             </p>
             <SearchForm />
