@@ -82,8 +82,8 @@
 @layer base {
   html {
     @apply antialiased;
+    scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
-    /* 헤드라인·디스플레이 텍스트도 Pretendard로 통일 (기존 Cormorant 대체) */
     --wt-font-display: var(--wt-font-body);
   }
   body {
@@ -131,16 +131,26 @@
   border-radius: var(--wt-radius-md);
 }
 /* 예약 조건(접이식) 블록: 제목·내용 구분 */
+.hero-search-form .hero-form-details {
+  border-radius: var(--wt-radius-md);
+}
 .hero-search-form .hero-form-details summary {
   font-size: 14px;
   font-weight: 600;
   color: var(--wt-color-text-primary);
+  border-radius: inherit;
+  outline: none;
+  transition: box-shadow 0.15s ease;
+}
+.hero-search-form .hero-form-details summary:focus-visible {
+  box-shadow: 0 0 0 2px var(--wt-color-brand-500), 0 0 0 4px var(--wt-color-bg);
 }
 .hero-search-form .hero-form-details__title {
   font-size: 13px;
   font-weight: 600;
   color: var(--wt-color-text-secondary);
   margin-bottom: 12px;
+  line-height: 1.45;
 }
 
 /* 섹션 구분용 얇은 보더 (Calm Precision) */
@@ -175,7 +185,10 @@
 /* 포커스·트랜지션 (06-design-system) */
 @layer utilities {
   .focus-wt {
-    @apply outline-none transition-[box-shadow] duration-150 focus-visible:ring-4 focus-visible:ring-[rgba(6,88,140,0.2)];
+    @apply outline-none transition-[box-shadow] duration-150 focus-visible:ring-2 focus-visible:ring-wt-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-wt-panel;
+  }
+  .focus-wt-dark {
+    @apply outline-none transition-[box-shadow] duration-150 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-wt-brand-700;
   }
   .wt-transition-base {
     @apply transition-colors duration-200;

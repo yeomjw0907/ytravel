@@ -11,21 +11,21 @@ const linkButtonBase =
  */
 export function TrustCtaSection() {
   return (
-    <section className="border-t border-wt-border bg-wt-surface py-wt-16 md:py-wt-20">
+    <section className="border-t border-wt-border bg-wt-surface pt-wt-16 pb-wt-14 md:pt-wt-24 md:pb-wt-18">
       <Container size="lg">
         <p className="max-w-2xl font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
           현재 수집 기준 결과이며, 실제 예약 전 외부 사이트에서 객실 조건과 총액을 다시 확인해 주세요.
           BRG 적용 여부는 호텔 브랜드 정책에 따라 달라질 수 있습니다.
         </p>
-        <div className="mt-wt-8 flex flex-wrap gap-wt-4">
+        <div className="mt-wt-6 flex flex-wrap gap-wt-3 sm:gap-wt-4">
           <Link
             href="/search"
-            className={`${linkButtonBase} rounded-wt-md bg-wt-brand-700 text-white hover:bg-wt-brand-500 wt-transition-base`}
+            className={`${linkButtonBase} rounded-wt-md bg-wt-brand-700 text-white hover:bg-wt-brand-500 focus-wt`}
           >
             검색 시작
           </Link>
           <BrgLink
-            className={`${linkButtonBase} rounded-wt-md border-2 border-wt-brand-700 text-wt-brand-700 hover:bg-wt-info-bg wt-transition-base`}
+            className={`${linkButtonBase} rounded-wt-md border-2 border-wt-brand-700 text-wt-brand-700 hover:bg-wt-info-bg focus-wt`}
           >
             BRG란?
           </BrgLink>

@@ -1,8 +1,50 @@
 "use client";
 
+import { useState, useId } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { DateRangeField } from "./DateRangeField";
 import { HotelAutocomplete } from "./HotelAutocomplete";
+
+/** 숫자만 추출 후 천 단위 콤마 포맷 */
+function formatWithComma(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits === "") return "";
+  return Number(digits).toLocaleString("ko-KR");
+}
+
+/** 내 예약가: 표시만 쉼표 포맷, 제출값은 숫자 */
+function UserBookedPriceInput() {
+  const id = useId();
+  const [raw, setRaw] = useState("");
+  const display = raw === "" ? "" : formatWithComma(raw);
+
+  return (
+    <div className="flex flex-col gap-wt-1">
+      <label
+        htmlFor={id}
+        className="text-wt-body-sm font-medium text-wt-text-primary"
+      >
+        내 예약가
+      </label>
+      <input type="hidden" name="userBookedPrice" value={raw.replace(/\D/g, "")} readOnly />
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="320,000"
+        required
+        minLength={1}
+        value={display}
+        onChange={(e) => {
+          const next = e.target.value.replace(/\D/g, "");
+          setRaw(next);
+        }}
+        className="w-full rounded-wt-md border-2 border-wt-border bg-wt-panel px-wt-3 py-wt-2.5 text-wt-body-md text-wt-text-primary placeholder:text-wt-text-secondary transition-colors focus-wt disabled:bg-wt-surface disabled:text-wt-text-secondary hover:border-wt-brand-300 focus-visible:ring-wt-brand-500/20 min-h-[44px]"
+      />
+    </div>
+  );
+}
 
 const ADULT_OPTIONS = Array.from({ length: 6 }, (_, i) => ({
   value: String(i + 1),
@@ -66,15 +108,7 @@ export function SearchForm() {
           <DateRangeField checkInName="checkIn" checkOutName="checkOut" />
         </div>
         <div className="flex flex-col justify-end sm:col-span-2 sm:min-h-[4.5rem]">
-          <Input
-            label="내 예약가"
-            name="userBookedPrice"
-            type="number"
-            min="1"
-            step="1"
-            placeholder="320000"
-            required
-          />
+          <UserBookedPriceInput />
         </div>
         <div className="sm:col-span-1">
           <Select

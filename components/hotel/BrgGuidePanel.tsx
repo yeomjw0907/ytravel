@@ -18,10 +18,10 @@ export function BrgGuidePanel() {
       <h3 className="font-display text-wt-h3 text-wt-text-primary">
         BRG 진행 전 확인 항목
       </h3>
-      <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
+      <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
         BRG 가능성은 참고 정보이며, 실제 승인 여부는 호텔 브랜드 정책에 따라 달라질 수 있습니다.
       </p>
-      <ol className="mt-wt-4 list-inside list-decimal space-y-wt-2 font-body text-wt-body-sm text-wt-text-primary">
+      <ol className="mt-wt-4 list-inside list-decimal space-y-wt-2 font-body text-wt-body-sm leading-relaxed text-wt-text-primary">
         {STEPS.map((step, i) => (
           <li key={i}>{step}</li>
         ))}

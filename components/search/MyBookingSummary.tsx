@@ -28,7 +28,7 @@ export function MyBookingSummary({
       <h2 className="font-display text-wt-h3 text-wt-text-primary">
         내 예약
       </h2>
-      <div className="mt-wt-4 grid grid-cols-1 gap-wt-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-wt-5 grid grid-cols-1 gap-wt-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="text-wt-caption font-medium text-wt-text-secondary">
             호텔

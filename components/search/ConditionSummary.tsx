@@ -23,11 +23,11 @@ export function ConditionSummary({ evaluation }: ConditionSummaryProps) {
   if (matched.length === 0 && mismatched.length === 0) return null;
 
   return (
-    <div className="rounded-wt-lg border border-wt-border bg-wt-panel p-wt-5 md:p-wt-6">
+    <div className="rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:p-wt-8">
       <h3 className="font-display text-wt-h3 text-wt-text-primary">
         조건 매칭 (내 예약 대비)
       </h3>
-      <div className="mt-wt-3 flex flex-wrap gap-wt-2">
+      <div className="mt-wt-4 flex flex-wrap gap-wt-2">
         {matched.map((label) => (
           <ConditionBadge key={`matched-${label}`} variant="success">
             {label} 일치

@@ -1,6 +1,6 @@
 import type { RateOffer } from "@/lib/types/schema";
 import { getProviderDisplayName } from "@/lib/search/format";
-import { CONDITION_LABELS } from "@/lib/search/format";
+import { CONDITION_LABELS_KO } from "@/lib/search/format";
 import {
   Table,
   TableHead,
@@ -28,9 +28,9 @@ function getCellValue(
   if (key === "taxIncluded")
     return c.taxIncluded === true ? "포함" : c.taxIncluded === false ? "미포함" : "—";
   if (key === "cancellationType")
-    return CONDITION_LABELS.cancellationType[c.cancellationType];
-  if (key === "boardType") return CONDITION_LABELS.boardType[c.boardType];
-  if (key === "paymentType") return CONDITION_LABELS.paymentType[c.paymentType];
+    return CONDITION_LABELS_KO.cancellationType[c.cancellationType];
+  if (key === "boardType") return CONDITION_LABELS_KO.boardType[c.boardType];
+  if (key === "paymentType") return CONDITION_LABELS_KO.paymentType[c.paymentType];
   return "—";
 }
 

@@ -59,7 +59,7 @@ export function BrgSummaryCard({
           <h2 className="font-display text-wt-h3 text-wt-text-primary">
             최적 후보 vs 내 예약
           </h2>
-          <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
+          <p className="mt-wt-1.5 text-wt-body-sm leading-relaxed text-wt-text-secondary">
             {MATCH_LABEL[evaluation.matchType]} · 신뢰도 {CONFIDENCE_LABEL[evaluation.confidence] ?? evaluation.confidence}
           </p>
         </div>
@@ -121,7 +121,7 @@ export function BrgSummaryCard({
           href={bestOfferDeeplink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-wt-5 inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 bg-wt-brand-700 px-wt-5 text-wt-body-sm font-semibold text-white hover:bg-wt-brand-800 hover:border-wt-brand-800 focus-wt"
+          className="mt-wt-6 inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 bg-wt-brand-700 px-wt-5 text-wt-body-sm font-semibold text-white transition-colors hover:bg-wt-brand-800 hover:border-wt-brand-800 focus-wt"
         >
           {bestOfferProviderName
             ? `${bestOfferProviderName} 최저가 보기`

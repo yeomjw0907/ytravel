@@ -14,15 +14,15 @@ const ITEMS = [
  */
 export function DifferentiatorSection() {
   return (
-    <section className="bg-wt-surface py-wt-16 md:py-wt-20">
+    <section className="bg-wt-surface pt-wt-16 pb-wt-14 md:pt-wt-24 md:pb-wt-20">
       <Container size="lg">
         <h2 className="font-display text-wt-h2 text-wt-text-primary md:text-wt-h1">
           Ytravel이 함께 보는 항목
         </h2>
-        <p className="mt-wt-4 max-w-2xl font-body text-wt-body-md text-wt-text-secondary">
+        <p className="mt-wt-3 max-w-2xl font-body text-wt-body-md leading-relaxed text-wt-text-secondary">
           가격만이 아니라 객실 조건과 취소 정책까지 같은 기준으로 비교합니다.
         </p>
-        <div className="mt-wt-8 flex flex-wrap gap-wt-3">
+        <div className="mt-wt-6 flex flex-wrap gap-wt-2 sm:gap-wt-3">
           {ITEMS.map(({ label, variant }) => (
             <ConditionBadge key={label} variant={variant}>
               {label}

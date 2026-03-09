@@ -10,11 +10,11 @@ interface HotelHeaderProps {
  */
 export function HotelHeader({ hotel }: HotelHeaderProps) {
   return (
-    <header className="border-b border-wt-border bg-wt-panel px-wt-5 py-wt-6 md:px-wt-8">
+    <header className="border-b border-wt-border bg-wt-panel px-4 py-wt-5 sm:px-5 md:px-6 md:py-wt-6 lg:px-8">
       <h1 className="font-display text-wt-h2 text-wt-text-primary md:text-wt-h1">
         {getHotelDisplayName(hotel)}
       </h1>
-      <p className="mt-wt-1 font-body text-wt-body-md text-wt-text-secondary">
+      <p className="mt-wt-1.5 font-body text-wt-body-md text-wt-text-secondary">
         {hotel.city}
         {hotel.country && `, ${hotel.country}`}
         {hotel.brand && ` · ${hotel.brand}`}

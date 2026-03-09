@@ -14,8 +14,9 @@ import type {
   SearchResult,
 } from "@/lib/types/schema";
 import { resolveHotelForSearch } from "@/lib/api/hotels";
+import { getOffersForHotel } from "@/lib/api/offers";
 import { getFallbackLinks, getProviders } from "@/lib/mock/providers";
-import { getMockOffersForHotel, MOCK_FAILED_PROVIDER_IDS } from "@/lib/mock/offers";
+import { MOCK_FAILED_PROVIDER_IDS } from "@/lib/mock/offers";
 
 interface OfferComparison {
   offer: RateOffer;
@@ -32,8 +33,8 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
   const now = new Date().toISOString();
   const providers = getProviders(); // automated only (trip-com, traveloka, vio)
   const hotel = await resolveHotelForSearch(query.hotelName, query.destination);
-  // OTA 요금: 현재 mock만 지원. Amadeus 호텔은 offers 없음 → 결과만 표시, fallback 링크 활용
-  const offers = hotel ? getMockOffersForHotel(hotel.id) : [];
+  // OTA 요금: lib/api/offers.ts에서 조회 (현재 mock, 실연동 시 getOffersForHotel 내부에서 API 호출)
+  const offers = hotel ? await getOffersForHotel(hotel, query) : [];
   const fetchStatuses = buildFetchStatuses(
     providers.map((p) => p.id),
     now

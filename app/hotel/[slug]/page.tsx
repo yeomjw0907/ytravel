@@ -129,15 +129,15 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
 
   const searchSummary =
     `${formatDateRange(result.query.checkIn, result.query.checkOut)} · ` +
-    `${result.query.adults} guest(s), ${result.query.rooms} room(s) · ` +
-    `${result.query.roomName}`;
+    `성인 ${result.query.adults}명, 객실 ${result.query.rooms}실 · ` +
+    (result.query.roomName?.trim() || "객실 미지정");
 
   return (
     <div className="min-h-screen bg-wt-bg">
       <HotelHeader hotel={result.hotel} />
 
-      <Container size="lg" className="py-wt-8 md:py-wt-10">
-        <section className="mb-wt-8">
+      <Container size="lg" className="py-wt-6 md:py-wt-8">
+        <section className="mb-wt-6 md:mb-wt-8">
           <MyBookingSummary
             query={result.query}
             hotelName={result.hotel.nameDisplay ?? result.hotel.name}
@@ -147,23 +147,23 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           />
         </section>
 
-        <div className="mb-wt-6 flex flex-wrap items-center gap-wt-2 border-b border-wt-border pb-wt-4">
+        <div className="mb-wt-6 flex flex-wrap items-center gap-wt-2 border-b border-wt-border pb-wt-4 md:mb-wt-8">
           <span className="text-wt-caption font-medium text-wt-text-secondary">
-            Search summary
+            검색 요약
           </span>
           <span className="text-wt-body-sm text-wt-text-primary">
             {searchSummary}
           </span>
           <Link
             href={`/search?${toSearchQueryString(result.query)}`}
-            className="ml-auto text-wt-body-sm font-medium text-wt-brand-700 hover:underline focus-wt"
+            className="ml-auto rounded-wt-sm text-wt-body-sm font-medium text-wt-brand-700 hover:underline focus-wt"
           >
-            Back to results
+            결과로 돌아가기
           </Link>
         </div>
 
         {result.brgEvaluation && (
-          <section>
+          <section className="mb-wt-6 md:mb-wt-8">
             <BrgSummaryCard
               evaluation={result.brgEvaluation}
               currency={result.query.currency}
@@ -172,10 +172,13 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           </section>
         )}
 
-        <section className="mt-wt-10">
+        <section className="mt-wt-8 md:mt-wt-10">
           <h2 className="font-display text-wt-h3 text-wt-text-primary">
-            Provider detail
+            공급처별 상세
           </h2>
+          <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
+            자동 수집된 요금과 조건을 확인하세요.
+          </p>
           <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
             {result.providers.map((provider) => (
               <ProviderDetailCard
@@ -195,9 +198,9 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
         </section>
 
         {result.offers.length > 0 && (
-          <section className="mt-wt-10">
+          <section className="mt-wt-8 md:mt-wt-10">
             <h2 className="font-display text-wt-h3 text-wt-text-primary">
-              Condition comparison
+              조건 비교
             </h2>
             <div className="mt-wt-4 overflow-x-auto">
               <ConditionComparisonTable offers={result.offers} />
@@ -205,22 +208,22 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           </section>
         )}
 
-        <section className="mt-wt-10">
+        <section className="mt-wt-8 md:mt-wt-10">
           <BrgGuidePanel />
         </section>
 
-        <div className="mt-wt-10 flex flex-wrap gap-wt-4">
+        <div className="mt-wt-8 flex flex-wrap gap-wt-3 sm:gap-wt-4 md:mt-wt-10">
           <Link
             href={`/search?${toSearchQueryString(result.query)}`}
-            className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-5 text-wt-body-sm font-medium text-wt-brand-700 hover:bg-wt-info-bg focus-wt"
+            className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-5 text-wt-body-sm font-medium text-wt-brand-700 transition-colors hover:bg-wt-info-bg focus-wt"
           >
-            Back to results
+            결과로 돌아가기
           </Link>
           <Link
             href="/"
-            className="inline-flex h-11 items-center justify-center rounded-wt-md px-wt-5 text-wt-body-sm font-medium text-wt-text-secondary hover:bg-wt-surface focus-wt"
+            className="inline-flex h-11 items-center justify-center rounded-wt-md px-wt-5 text-wt-body-sm font-medium text-wt-text-secondary transition-colors hover:bg-wt-surface focus-wt"
           >
-            New search
+            새 검색
           </Link>
         </div>
       </Container>
