@@ -1,27 +1,25 @@
-import type { RateOffer, ProviderFetchStatus } from "@/lib/types/schema";
-import { formatPrice } from "@/lib/search/format";
-import { getProviderDisplayName } from "@/lib/search/format";
-import { CONDITION_LABELS } from "@/lib/search/format";
-import { Card } from "@/components/ui";
-import { ConditionBadge } from "@/components/ui";
+import type { ProviderFetchStatus, RateOffer } from "@/lib/types/schema";
+import {
+  CONDITION_LABELS,
+  formatPrice,
+  getProviderDisplayName,
+} from "@/lib/search/format";
+import { Card, ConditionBadge } from "@/components/ui";
 
 interface ProviderDetailCardProps {
   offer: RateOffer | null;
   providerId: string;
   fetchStatus: ProviderFetchStatus | undefined;
   isOfficial: boolean;
-  isLowestOta: boolean;
+  isBestCandidate: boolean;
 }
 
-/**
- * 상세 페이지용 공급처 카드: 가격 + 조건 + 외부 링크 (15-page-wireframes §6)
- */
 export function ProviderDetailCard({
   offer,
   providerId,
   fetchStatus,
   isOfficial,
-  isLowestOta,
+  isBestCandidate,
 }: ProviderDetailCardProps) {
   const name = getProviderDisplayName(providerId);
   const isFailed = fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
@@ -31,10 +29,10 @@ export function ProviderDetailCard({
       <Card padding="md" className="border-wt-danger-bg/40">
         <div className="flex items-center justify-between">
           <span className="font-body font-medium text-wt-text-primary">{name}</span>
-          <span className="text-wt-caption text-wt-danger-text">수집 실패</span>
+          <span className="text-wt-caption text-wt-danger-text">Fetch failed</span>
         </div>
         <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
-          {fetchStatus?.message ?? "일시적으로 수집할 수 없습니다."}
+          {fetchStatus?.message ?? "This provider could not be fetched."}
         </p>
       </Card>
     );
@@ -42,8 +40,8 @@ export function ProviderDetailCard({
 
   if (!offer) return null;
 
-  const c = offer.condition;
-  const buttonLabel = isOfficial ? "공식 사이트 보기" : "가격 보기";
+  const condition = offer.condition;
+  const buttonLabel = isOfficial ? "View official site" : "View rate";
 
   return (
     <Card padding="md" hover>
@@ -52,12 +50,12 @@ export function ProviderDetailCard({
         <div className="flex gap-wt-2">
           {isOfficial && (
             <span className="rounded-wt-pill bg-wt-info-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-info-text">
-              공식가
+              Official
             </span>
           )}
-          {isLowestOta && (
+          {isBestCandidate && (
             <span className="rounded-wt-pill bg-wt-success-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-success-text">
-              최저가
+              Best
             </span>
           )}
         </div>
@@ -67,16 +65,20 @@ export function ProviderDetailCard({
       </p>
       <div className="mt-wt-3 flex flex-wrap gap-wt-2">
         <ConditionBadge variant="neutral">
-          {CONDITION_LABELS.cancellationType[c.cancellationType]}
+          {CONDITION_LABELS.cancellationType[condition.cancellationType]}
         </ConditionBadge>
         <ConditionBadge variant="neutral">
-          {c.taxIncluded === true ? "세금 포함" : c.taxIncluded === false ? "세금 미포함" : "—"}
+          {condition.taxIncluded === true
+            ? "Tax included"
+            : condition.taxIncluded === false
+              ? "Tax excluded"
+              : "Tax unknown"}
         </ConditionBadge>
         <ConditionBadge variant="neutral">
-          {CONDITION_LABELS.boardType[c.boardType]}
+          {CONDITION_LABELS.boardType[condition.boardType]}
         </ConditionBadge>
         <ConditionBadge variant="neutral">
-          {CONDITION_LABELS.paymentType[c.paymentType]}
+          {CONDITION_LABELS.paymentType[condition.paymentType]}
         </ConditionBadge>
       </div>
       <a

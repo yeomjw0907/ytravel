@@ -20,6 +20,7 @@
 - `product/03-screen-structure.md`
 - `product/07-information-architecture.md`
 - `product/08-user-flows.md`
+- `product/09-user-booked-price-mvp-plan.md`
 
 ### Design
 
@@ -36,6 +37,7 @@
 - `engineering/09-data-schema.md`
 - `engineering/10-api-spec.md`
 - `engineering/16-development-prompts.md`
+- `engineering/18-user-booked-price-implementation-plan.md`
 
 ### Operations
 

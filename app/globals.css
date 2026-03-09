@@ -107,30 +107,40 @@
   background-attachment: scroll;
 }
 
-/* 메인 페이지 히어로: 라벨 "호텔명" "체크인 / 체크아웃" "투숙 인원" "객실 수" — 제목보다 한 단계 낮게 */
+/* 히어로 폼: 밝은 카드 위 라벨·입력 가독성 (대비 확보) */
 .hero-search-form label {
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  color: rgba(255, 255, 255, 0.92) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wt-color-text-primary);
   letter-spacing: -0.02em;
-  margin-bottom: 2px;
 }
 .hero-search-form input[type="text"],
+.hero-search-form input[type="number"],
 .hero-search-form input[type="date"],
 .hero-search-form select,
 .hero-search-form button[type="button"] {
-  min-height: 48px;
+  min-height: 44px;
   border-radius: var(--wt-radius-md);
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  color: #0d0f12 !important;
+  font-size: 16px;
+  color: var(--wt-color-text-primary);
 }
 .hero-search-form input::placeholder {
-  color: #4a5160;
+  color: #4b5563; /* placeholder 가독성: secondary보다 진하게 */
 }
 .hero-search-form .rounded-wt-md {
   border-radius: var(--wt-radius-md);
+}
+/* 예약 조건(접이식) 블록: 제목·내용 구분 */
+.hero-search-form .hero-form-details summary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--wt-color-text-primary);
+}
+.hero-search-form .hero-form-details__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wt-color-text-secondary);
+  margin-bottom: 12px;
 }
 
 /* 섹션 구분용 얇은 보더 (Calm Precision) */

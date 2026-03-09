@@ -1,15 +1,22 @@
-import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { getHotelBySlug } from "@/lib/mock/hotels";
+import { resolveHotelForSearch } from "@/lib/api/hotels";
 import { search } from "@/lib/services/search-service";
-import { formatCollectedAt, formatDateRange, todayISO, tomorrowISO } from "@/lib/search/format";
+import {
+  formatCollectedAt,
+  formatDateRange,
+  todayISO,
+  tomorrowISO,
+} from "@/lib/search/format";
 import { toSearchQueryString } from "@/lib/search/queryString";
 import { Container } from "@/components/layout/Container";
 import { HotelHeader } from "@/components/hotel/HotelHeader";
-import { BrgSummaryCard } from "@/components/search/BrgSummaryCard";
 import { ProviderDetailCard } from "@/components/hotel/ProviderDetailCard";
 import { ConditionComparisonTable } from "@/components/hotel/ConditionComparisonTable";
 import { BrgGuidePanel } from "@/components/hotel/BrgGuidePanel";
+import { BrgSummaryCard } from "@/components/search/BrgSummaryCard";
+import { MyBookingSummary } from "@/components/search/MyBookingSummary";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -19,37 +26,48 @@ type Props = {
 const DEFAULT_CHECK_IN = "2026-05-10";
 const DEFAULT_CHECK_OUT = "2026-05-12";
 
-function getParam(sp: Record<string, string | string[] | undefined>, key: string, fallback: string): string {
-  const v = sp[key];
-  return typeof v === "string" ? v.trim() : fallback;
-}
-function getParamNum(sp: Record<string, string | string[] | undefined>, key: string, fallback: number): number {
-  const v = sp[key];
-  if (v == null) return fallback;
-  const n = typeof v === "string" ? parseInt(v, 10) : Number(v);
-  return Number.isInteger(n) && n >= 0 ? n : fallback;
+function getParam(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+  fallback: string
+): string {
+  const value = searchParams[key];
+  return typeof value === "string" ? value.trim() : fallback;
 }
 
-/**
- * 호텔 상세: slug로 호텔 조회 후 search()로 동일 결과 구조 사용.
- * searchParams에서 checkIn, checkOut, adults, rooms 등 읽어 검색 컨텍스트 유지.
- */
+function getParamNum(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+  fallback: number
+): number {
+  const value = searchParams[key];
+  if (value == null) return fallback;
+  const parsed = typeof value === "string" ? Number(value) : Number(value[0]);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function getParamBoolean(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+  fallback: boolean | null
+): boolean | null {
+  const value = getParam(searchParams, key, "");
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return fallback;
+}
+
 export default async function HotelDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
-  const checkIn = getParam(sp, "checkIn", DEFAULT_CHECK_IN);
-  const checkOut = getParam(sp, "checkOut", DEFAULT_CHECK_OUT);
-  const adults = getParamNum(sp, "adults", 2);
-  const children = getParamNum(sp, "children", 0);
-  const rooms = getParamNum(sp, "rooms", 1);
-  const currency = getParam(sp, "currency", "KRW");
-  const locale = getParam(sp, "locale", "ko-KR");
-  const hotelName = getParam(sp, "hotelName", "");
-  const destination = getParam(sp, "destination", "");
-
-  const hotel = getHotelBySlug(slug);
+  let hotel = getHotelBySlug(slug);
   if (!hotel) {
-    const decoded = decodeURIComponent(slug).trim() || slug;
+    const resolved = await resolveHotelForSearch(slug.replace(/-/g, " "), null);
+    hotel = resolved?.slug === slug ? resolved : undefined;
+  }
+
+  if (!hotel) {
+    const decoded = decodeURIComponent(slug).trim().replace(/-/g, " ") || slug;
     redirect(
       `/search?${toSearchQueryString({
         hotelName: decoded,
@@ -61,74 +79,116 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
         rooms: 1,
         currency: "KRW",
         locale: "ko-KR",
+        roomName: "Standard Room",
+        userBookedPrice: 300000,
+        bookedBoardType: "room_only",
+        bookedCancellationType: "free_cancellation",
+        bookedTaxIncluded: true,
+        bookedPaymentType: "pay_now",
       })}`
     );
   }
 
   const result = await search({
-    hotelName: hotelName || hotel.name,
-    destination: destination || hotel.city || null,
-    checkIn,
-    checkOut,
-    adults,
-    children,
-    rooms,
-    currency,
-    locale,
+    hotelName: getParam(sp, "hotelName", hotel.name),
+    destination: getParam(sp, "destination", hotel.city),
+    checkIn: getParam(sp, "checkIn", DEFAULT_CHECK_IN),
+    checkOut: getParam(sp, "checkOut", DEFAULT_CHECK_OUT),
+    adults: getParamNum(sp, "adults", 2),
+    children: getParamNum(sp, "children", 0),
+    rooms: getParamNum(sp, "rooms", 1),
+    currency: getParam(sp, "currency", "KRW"),
+    locale: getParam(sp, "locale", "ko-KR"),
+    roomName: getParam(sp, "roomName", "Standard Room"),
+    userBookedPrice: getParamNum(sp, "userBookedPrice", 300000),
+    bookedBoardType: getParam(sp, "bookedBoardType", "room_only") as
+      | "room_only"
+      | "breakfast_included"
+      | "half_board"
+      | "unknown",
+    bookedCancellationType: getParam(
+      sp,
+      "bookedCancellationType",
+      "free_cancellation"
+    ) as "free_cancellation" | "non_refundable" | "partial_refund" | "unknown",
+    bookedTaxIncluded: getParamBoolean(sp, "bookedTaxIncluded", true),
+    bookedPaymentType: getParam(sp, "bookedPaymentType", "pay_now") as
+      | "pay_now"
+      | "pay_later"
+      | "pay_at_hotel"
+      | "unknown",
   });
 
   if (!result.hotel) notFound();
 
-  const brg = result.brgEvaluation;
-  const lowestOtaId = brg?.lowestOtaOfferId ?? null;
-  const offerByProvider = new Map(result.offers.map((o) => [o.providerId, o]));
-  const getStatus = (id: string) => result.fetchStatuses.find((s) => s.providerId === id);
+  const highlightedOfferId = result.brgEvaluation?.comparisonOfferId ?? null;
+  const offerByProvider = new Map(result.offers.map((offer) => [offer.providerId, offer]));
   const collectedAt = result.offers[0]
     ? formatCollectedAt(result.offers[0].collectedAt)
     : undefined;
 
   const searchSummary =
-    formatDateRange(checkIn, checkOut) +
-    ` · 성인 ${result.query.adults}명` +
-    (result.query.children > 0 ? `, 어린이 ${result.query.children}명` : "") +
-    `, 객실 ${result.query.rooms}개`;
+    `${formatDateRange(result.query.checkIn, result.query.checkOut)} · ` +
+    `${result.query.adults} guest(s), ${result.query.rooms} room(s) · ` +
+    `${result.query.roomName}`;
 
   return (
     <div className="min-h-screen bg-wt-bg">
       <HotelHeader hotel={result.hotel} />
 
       <Container size="lg" className="py-wt-8 md:py-wt-10">
-        <div className="mb-wt-8 flex flex-wrap items-center gap-wt-2 border-b border-wt-border pb-wt-5">
-          <span className="text-wt-caption font-medium text-wt-text-secondary">현재 검색 조건</span>
-          <span className="text-wt-body-sm text-wt-text-primary">{searchSummary}</span>
+        <section className="mb-wt-8">
+          <MyBookingSummary
+            query={result.query}
+            hotelName={result.hotel.nameDisplay ?? result.hotel.name}
+            hotelLocation={[result.hotel.city, result.hotel.country]
+              .filter(Boolean)
+              .join(", ")}
+          />
+        </section>
+
+        <div className="mb-wt-6 flex flex-wrap items-center gap-wt-2 border-b border-wt-border pb-wt-4">
+          <span className="text-wt-caption font-medium text-wt-text-secondary">
+            Search summary
+          </span>
+          <span className="text-wt-body-sm text-wt-text-primary">
+            {searchSummary}
+          </span>
           <Link
             href={`/search?${toSearchQueryString(result.query)}`}
             className="ml-auto text-wt-body-sm font-medium text-wt-brand-700 hover:underline focus-wt"
           >
-            검색 결과로 돌아가기
+            Back to results
           </Link>
         </div>
-        {brg && (
+
+        {result.brgEvaluation && (
           <section>
             <BrgSummaryCard
-              evaluation={brg}
-              currency={result.offers[0]?.currency ?? result.query.currency}
+              evaluation={result.brgEvaluation}
+              currency={result.query.currency}
               collectedAt={collectedAt}
             />
           </section>
         )}
 
         <section className="mt-wt-10">
-          <h2 className="font-display text-wt-h3 text-wt-text-primary">공급처별 상세</h2>
-          <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-4">
-            {result.providers.map((p) => (
+          <h2 className="font-display text-wt-h3 text-wt-text-primary">
+            Provider detail
+          </h2>
+          <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
+            {result.providers.map((provider) => (
               <ProviderDetailCard
-                key={p.id}
-                offer={offerByProvider.get(p.id) ?? null}
-                providerId={p.id}
-                fetchStatus={getStatus(p.id)}
-                isOfficial={p.type === "official"}
-                isLowestOta={offerByProvider.get(p.id)?.id === lowestOtaId}
+                key={provider.id}
+                offer={offerByProvider.get(provider.id) ?? null}
+                providerId={provider.id}
+                fetchStatus={result.fetchStatuses.find(
+                  (status) => status.providerId === provider.id
+                )}
+                isOfficial={provider.type === "official"}
+                isBestCandidate={
+                  offerByProvider.get(provider.id)?.id === highlightedOfferId
+                }
               />
             ))}
           </div>
@@ -136,7 +196,9 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
 
         {result.offers.length > 0 && (
           <section className="mt-wt-10">
-            <h2 className="font-display text-wt-h3 text-wt-text-primary">객실 조건 비교</h2>
+            <h2 className="font-display text-wt-h3 text-wt-text-primary">
+              Condition comparison
+            </h2>
             <div className="mt-wt-4 overflow-x-auto">
               <ConditionComparisonTable offers={result.offers} />
             </div>
@@ -152,20 +214,15 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
             href={`/search?${toSearchQueryString(result.query)}`}
             className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-5 text-wt-body-sm font-medium text-wt-brand-700 hover:bg-wt-info-bg focus-wt"
           >
-            검색 결과로 돌아가기
+            Back to results
           </Link>
           <Link
             href="/"
             className="inline-flex h-11 items-center justify-center rounded-wt-md px-wt-5 text-wt-body-sm font-medium text-wt-text-secondary hover:bg-wt-surface focus-wt"
           >
-            새 검색
+            New search
           </Link>
         </div>
-
-        <p className="mt-wt-12 font-body text-wt-body-sm text-wt-text-secondary">
-          표시된 가격은 수집 시점 기준이며 실제 예약 화면과 다를 수 있습니다. 최종 예약 전 외부
-          사이트에서 객실 조건을 다시 확인해 주세요.
-        </p>
       </Container>
     </div>
   );

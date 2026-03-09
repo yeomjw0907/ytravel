@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { SearchQuery } from "@/lib/types/schema";
-import { formatDateRange } from "@/lib/search/format";
+import { formatDateRange, formatPrice } from "@/lib/search/format";
 import { Button } from "@/components/ui";
 
 interface SearchSummaryBarProps {
@@ -8,9 +8,6 @@ interface SearchSummaryBarProps {
   hotelName?: string;
 }
 
-/**
- * 현재 검색 조건 표시 + 다시 검색 (12-component-spec §11, 15-page-wireframes §4)
- */
 export function SearchSummaryBar({ query, hotelName }: SearchSummaryBarProps) {
   const displayName = hotelName ?? query.hotelName;
   const dateRange = formatDateRange(query.checkIn, query.checkOut);
@@ -22,11 +19,17 @@ export function SearchSummaryBar({ query, hotelName }: SearchSummaryBarProps) {
         <span className="mx-wt-2 text-wt-text-secondary">|</span>
         <span className="text-wt-text-secondary">{dateRange}</span>
         <span className="mx-wt-2 text-wt-text-secondary">|</span>
-        <span className="text-wt-text-secondary">성인 {query.adults}명, 객실 {query.rooms}개</span>
+        <span className="text-wt-text-secondary">
+          성인 {query.adults}명, 객실 {query.rooms}실
+        </span>
+        <span className="mx-wt-2 text-wt-text-secondary">|</span>
+        <span className="text-wt-text-secondary">
+          예약가 {formatPrice(query.userBookedPrice, query.currency)}
+        </span>
       </div>
       <Link href="/" className="shrink-0">
         <Button type="button" variant="secondary" size="sm">
-          다시 검색
+          검색 수정
         </Button>
       </Link>
     </div>
