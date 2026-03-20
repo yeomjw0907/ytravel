@@ -6,7 +6,6 @@ interface BrgSummaryCardProps {
   evaluation: BrgEvaluation;
   currency: string;
   collectedAt?: string;
-  /** 최적 후보(최저가) 링크 — 있으면 바로가기 버튼 표시 */
   bestOfferDeeplink?: string | null;
   bestOfferProviderName?: string | null;
 }
@@ -22,17 +21,17 @@ const ELIGIBILITY_VARIANT: Record<
 };
 
 const ELIGIBILITY_LABEL: Record<BrgEvaluation["eligibility"], string> = {
-  likely: "더 저렴한 후보 있음",
-  review: "수동 확인 권장",
-  not_eligible: "더 저렴한 후보 없음",
-  insufficient_data: "데이터 부족",
+  likely: "조건이 잘 맞는 후보",
+  review: "수동 확인 필요",
+  not_eligible: "더 싼 후보 없음",
+  insufficient_data: "비교 데이터 부족",
 };
 
 const MATCH_LABEL: Record<BrgEvaluation["matchType"], string> = {
-  exact: "정확 일치",
-  close: "유사 일치",
-  reference_only: "참고용",
-  none: "매칭 없음",
+  exact: "조건 일치",
+  close: "유사 조건",
+  reference_only: "참고용 후보",
+  none: "비교 불가",
 };
 
 const CONFIDENCE_LABEL: Record<string, string> = {
@@ -57,10 +56,11 @@ export function BrgSummaryCard({
       <div className="flex flex-wrap items-start justify-between gap-wt-3">
         <div>
           <h2 className="font-display text-wt-h3 text-wt-text-primary">
-            최적 후보 vs 내 예약
+            예약가 대비 후보 요약
           </h2>
           <p className="mt-wt-1.5 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            {MATCH_LABEL[evaluation.matchType]} · 신뢰도 {CONFIDENCE_LABEL[evaluation.confidence] ?? evaluation.confidence}
+            {MATCH_LABEL[evaluation.matchType]} · 신뢰도{" "}
+            {CONFIDENCE_LABEL[evaluation.confidence] ?? evaluation.confidence}
           </p>
         </div>
         <StatusPill variant={variant}>{statusLabel}</StatusPill>
@@ -79,7 +79,7 @@ export function BrgSummaryCard({
         </div>
         <div>
           <p className="text-wt-caption font-medium text-wt-text-secondary">
-            최적 후보
+            현재 후보가
           </p>
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-text-primary">
             {evaluation.candidatePrice != null
@@ -94,7 +94,7 @@ export function BrgSummaryCard({
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-brand-700">
             {evaluation.priceGap != null
               ? `${formatPrice(Math.abs(evaluation.priceGap), currency)} ${
-                  evaluation.priceGap > 0 ? "저렴" : "비쌈"
+                  evaluation.priceGap > 0 ? "저렴" : "높음"
                 }`
               : "-"}
           </p>
@@ -107,7 +107,7 @@ export function BrgSummaryCard({
       </div>
 
       {reason && (
-        <p className="mt-wt-4 font-body text-wt-body-sm text-wt-text-secondary">
+        <p className="mt-wt-4 font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
           {reason}
         </p>
       )}
@@ -116,16 +116,25 @@ export function BrgSummaryCard({
           수집 시각: {collectedAt}
         </p>
       )}
+      <p className="mt-wt-2 text-wt-caption leading-relaxed text-wt-text-secondary">
+        지원 사이트 기준의 참고 정보입니다. 최종 예약 전에는 외부 사이트에서
+        객실 조건과 총액을 다시 확인하세요. BRG 승인 여부는 호텔 정책에 따라
+        달라질 수 있습니다.
+      </p>
       {bestOfferDeeplink && (
         <a
           href={bestOfferDeeplink}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-wt-6 inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 bg-wt-brand-700 px-wt-5 text-wt-body-sm font-semibold text-white transition-colors hover:bg-wt-brand-800 hover:border-wt-brand-800 focus-wt"
+          data-track="external_link_click"
+          data-track-location="summary_card"
+          data-track-provider={bestOfferProviderName ?? "candidate"}
+          data-track-url={bestOfferDeeplink}
+          className="mt-wt-6 inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 bg-wt-brand-700 px-wt-5 text-wt-body-sm font-semibold text-white transition-colors hover:border-wt-brand-800 hover:bg-wt-brand-800 focus-wt"
         >
           {bestOfferProviderName
-            ? `${bestOfferProviderName} 최저가 보기`
-            : "최저가 링크 바로가기"}
+            ? `${bestOfferProviderName}에서 다시 확인`
+            : "외부 사이트에서 다시 확인"}
         </a>
       )}
     </div>

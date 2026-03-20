@@ -12,9 +12,6 @@ interface MyBookingSummaryProps {
   hotelLocation?: string;
 }
 
-/**
- * 상단 내 예약 요약: 호텔·룸·일정·인원·예약가·조건
- */
 export function MyBookingSummary({
   query,
   hotelName,
@@ -26,7 +23,7 @@ export function MyBookingSummary({
   return (
     <section className="rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:p-wt-8">
       <h2 className="font-display text-wt-h3 text-wt-text-primary">
-        내 예약
+        내 예약 정보
       </h2>
       <div className="mt-wt-5 grid grid-cols-1 gap-wt-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
@@ -55,15 +52,15 @@ export function MyBookingSummary({
         </div>
         <div>
           <p className="text-wt-caption font-medium text-wt-text-secondary">
-            인원 · 객실
+            인원 · 객실 수
           </p>
           <p className="mt-wt-1 font-body text-wt-body-md text-wt-text-primary">
-            성인 {query.adults}명, 객실 {query.rooms}실
+            성인 {query.adults}명 · 객실 {query.rooms}실
           </p>
         </div>
         <div>
           <p className="text-wt-caption font-medium text-wt-text-secondary">
-            내 예약가
+            예약가
           </p>
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-text-primary">
             {formatPrice(query.userBookedPrice, query.currency)}
@@ -71,6 +68,9 @@ export function MyBookingSummary({
         </div>
       </div>
       <div className="mt-wt-4 flex flex-wrap gap-wt-2">
+        {query.roomName.trim() && (
+          <ConditionBadge variant="neutral">{query.roomName.trim()}</ConditionBadge>
+        )}
         <ConditionBadge variant="neutral">
           {CONDITION_LABELS_KO.boardType[query.bookedBoardType]}
         </ConditionBadge>

@@ -7,7 +7,7 @@ import { BrgModal } from "@/components/ui/BrgModal";
 const HASH = "brg";
 
 /**
- * URL hash #brg 일 때 BRG 설명 모달 표시. 링크는 href="/#brg" 사용.
+ * URL 해시가 #brg 일 때 BRG 안내 모달을 엽니다.
  */
 export function BrgModalTrigger() {
   const pathname = usePathname();

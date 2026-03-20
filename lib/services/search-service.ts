@@ -1,8 +1,8 @@
 /**
  * Search service: user's booked price vs OTA candidates.
- * - Uses only automated providers (trip-com, traveloka, vio) for offers and fetch statuses.
- * - Fallback links are link-only sites (KAYAK, momondo, Wego, trivago) for manual check.
- * - Best candidate is chosen by match type (exact > close > reference_only) then by lowest price.
+ * - Uses configured automated providers for offers and fetch statuses.
+ * - Fallback links are link-only sites for manual verification.
+ * - Best candidate is ranked by match quality first, then price.
  */
 import type {
   BrgConfidence,
@@ -24,6 +24,7 @@ interface OfferComparison {
   confidence: BrgConfidence;
   matchedFields: string[];
   mismatchedFields: string[];
+  comparableFieldCount: number;
   reasons: string[];
   priceGap: number;
   priceGapPercent: number;
@@ -31,14 +32,15 @@ interface OfferComparison {
 
 export async function search(query: SearchQuery): Promise<SearchResult> {
   const now = new Date().toISOString();
-  const providers = getProviders(); // automated only (trip-com, traveloka, vio)
   const hotel = await resolveHotelForSearch(query.hotelName, query.destination);
-  // OTA 요금: lib/api/offers.ts에서 조회 (현재 mock, 실연동 시 getOffersForHotel 내부에서 API 호출)
   const offers = hotel ? await getOffersForHotel(hotel, query) : [];
+
+  const providers = getProviders();
   const fetchStatuses = buildFetchStatuses(
-    providers.map((p) => p.id),
+    providers.map((provider) => provider.id),
     now
   );
+
   const brgEvaluation =
     hotel && offers.length > 0
       ? evaluateBestCandidateAgainstUserBooking(offers, query)
@@ -51,6 +53,7 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
     adults: query.adults,
     rooms: query.rooms,
   };
+
   return {
     query,
     hotel,
@@ -72,7 +75,7 @@ function buildFetchStatuses(
     return {
       providerId,
       status: isFailed ? "failed" : "success",
-      message: isFailed ? "Provider fetch failed." : null,
+      message: isFailed ? "현재 공급처 응답이 없습니다." : null,
       latencyMs: isFailed ? null : 500 + Math.floor(Math.random() * 300),
       fetchedAt,
     };
@@ -86,16 +89,12 @@ export function evaluateBrgForOffers(
   return evaluateBestCandidateAgainstUserBooking(offers, query);
 }
 
-/**
- * Compare user's booking to OTA offers and return the best candidate evaluation.
- * Match type: 0 mismatches = exact, 1 = close, 2+ = reference_only.
- * Confidence: exact → high, close → medium, reference_only → low.
- */
 function evaluateBestCandidateAgainstUserBooking(
   offers: RateOffer[],
   query: SearchQuery
 ): BrgEvaluation {
-  const otaOffers = offers.filter((o) => o.providerType === "ota");
+  const otaOffers = offers.filter((offer) => offer.providerType === "ota");
+
   if (otaOffers.length === 0) {
     return {
       comparisonOfferId: null,
@@ -109,14 +108,14 @@ function evaluateBestCandidateAgainstUserBooking(
       matchType: "none",
       matchedFields: [],
       mismatchedFields: [],
-      reasons: ["No OTA candidates were found for this hotel."],
+      reasons: ["지원 공급처에서 후보 요금을 찾지 못했습니다."],
     };
   }
 
   const comparisons = otaOffers.map((offer) =>
     compareOfferAgainstUserBooking(offer, query)
   );
-  const cheaper = comparisons.filter((c) => c.priceGap > 0);
+  const cheaper = comparisons.filter((comparison) => comparison.priceGap > 0);
   const ranked = (cheaper.length > 0 ? cheaper : comparisons).sort(
     compareRankedOffers
   );
@@ -135,7 +134,7 @@ function evaluateBestCandidateAgainstUserBooking(
       matchType: "none",
       matchedFields: [],
       mismatchedFields: [],
-      reasons: ["A candidate could not be ranked."],
+      reasons: ["후보를 정렬하지 못했습니다."],
     };
   }
 
@@ -145,11 +144,6 @@ function evaluateBestCandidateAgainstUserBooking(
       : best.matchType === "exact"
         ? "likely"
         : "review";
-
-  const reasons =
-    best.priceGap > 0
-      ? best.reasons
-      : ["No cheaper candidate was found in supported automated sources."];
 
   return {
     comparisonOfferId: best.offer.id,
@@ -163,7 +157,10 @@ function evaluateBestCandidateAgainstUserBooking(
     matchType: best.matchType,
     matchedFields: best.matchedFields,
     mismatchedFields: best.mismatchedFields,
-    reasons,
+    reasons:
+      best.priceGap > 0
+        ? best.reasons
+        : ["현재 확인된 후보 중 내 예약가보다 더 저렴한 가격은 없습니다."],
   };
 }
 
@@ -173,55 +170,75 @@ function compareOfferAgainstUserBooking(
 ): OfferComparison {
   const matchedFields: string[] = [];
   const mismatchedFields: string[] = [];
+  let comparableFieldCount = 0;
 
-  if (isSameRoomName(query.roomName, offer.condition.roomName, offer.rawRoomName)) {
-    matchedFields.push("roomName");
-  } else {
-    mismatchedFields.push("roomName");
+  const requestedRoomName = query.roomName.trim();
+  if (requestedRoomName) {
+    comparableFieldCount += 1;
+    if (
+      isSameRoomName(requestedRoomName, offer.condition.roomName, offer.rawRoomName)
+    ) {
+      matchedFields.push("roomName");
+    } else {
+      mismatchedFields.push("roomName");
+    }
   }
 
-  if (query.bookedBoardType === offer.condition.boardType) {
-    matchedFields.push("boardType");
-  } else if (
+  if (
     query.bookedBoardType !== "unknown" &&
     offer.condition.boardType !== "unknown"
   ) {
-    mismatchedFields.push("boardType");
+    comparableFieldCount += 1;
+    if (query.bookedBoardType === offer.condition.boardType) {
+      matchedFields.push("boardType");
+    } else {
+      mismatchedFields.push("boardType");
+    }
   }
 
-  if (query.bookedCancellationType === offer.condition.cancellationType) {
-    matchedFields.push("cancellationType");
-  } else if (
+  if (
     query.bookedCancellationType !== "unknown" &&
     offer.condition.cancellationType !== "unknown"
   ) {
-    mismatchedFields.push("cancellationType");
+    comparableFieldCount += 1;
+    if (query.bookedCancellationType === offer.condition.cancellationType) {
+      matchedFields.push("cancellationType");
+    } else {
+      mismatchedFields.push("cancellationType");
+    }
   }
 
-  if (query.bookedPaymentType === offer.condition.paymentType) {
-    matchedFields.push("paymentType");
-  } else if (
+  if (
     query.bookedPaymentType !== "unknown" &&
     offer.condition.paymentType !== "unknown"
   ) {
-    mismatchedFields.push("paymentType");
+    comparableFieldCount += 1;
+    if (query.bookedPaymentType === offer.condition.paymentType) {
+      matchedFields.push("paymentType");
+    } else {
+      mismatchedFields.push("paymentType");
+    }
   }
 
-  if (query.bookedTaxIncluded == null || offer.condition.taxIncluded == null) {
-    // ignore unknown tax information
-  } else if (query.bookedTaxIncluded === offer.condition.taxIncluded) {
-    matchedFields.push("taxIncluded");
-  } else {
-    mismatchedFields.push("taxIncluded");
+  if (query.bookedTaxIncluded != null && offer.condition.taxIncluded != null) {
+    comparableFieldCount += 1;
+    if (query.bookedTaxIncluded === offer.condition.taxIncluded) {
+      matchedFields.push("taxIncluded");
+    } else {
+      mismatchedFields.push("taxIncluded");
+    }
   }
 
-  if (offer.condition.occupancy == null || offer.condition.occupancy === query.adults) {
-    matchedFields.push("occupancy");
-  } else {
-    mismatchedFields.push("occupancy");
+  if (offer.condition.occupancy != null && query.adults > 0) {
+    comparableFieldCount += 1;
+    if (offer.condition.occupancy === query.adults) {
+      matchedFields.push("occupancy");
+    } else {
+      mismatchedFields.push("occupancy");
+    }
   }
 
-  const matchType = deriveMatchType(mismatchedFields.length);
+  const matchType = deriveMatchType(mismatchedFields.length, comparableFieldCount);
   const confidence = deriveConfidence(matchType);
   const priceGap = query.userBookedPrice - offer.totalPrice;
   const priceGapPercent =
@@ -229,12 +246,23 @@ function compareOfferAgainstUserBooking(
       ? (priceGap / query.userBookedPrice) * 100
       : 0;
 
-  const reasons = [
-    `${offer.providerId}: ${matchType.replace("_", " ")} match.`,
+  const reasons: string[] = [];
+
+  if (comparableFieldCount < 2) {
+    reasons.push("비교 가능한 조건 정보가 충분하지 않아 참고용으로만 보세요.");
+  } else if (matchType === "exact") {
+    reasons.push("핵심 조건이 대부분 일치합니다.");
+  } else if (matchType === "close") {
+    reasons.push("대체로 비슷하지만 일부 조건은 다시 확인해야 합니다.");
+  } else {
+    reasons.push("조건 차이가 있어 바로 비교하기 어렵습니다.");
+  }
+
+  reasons.push(
     priceGap > 0
-      ? "Candidate is cheaper than your booked price."
-      : "Candidate is not cheaper than your booked price.",
-  ];
+      ? "현재 후보가 내 예약가보다 낮습니다."
+      : "현재 후보가 내 예약가보다 낮지는 않습니다."
+  );
 
   return {
     offer,
@@ -242,6 +270,7 @@ function compareOfferAgainstUserBooking(
     confidence,
     matchedFields,
     mismatchedFields,
+    comparableFieldCount,
     reasons,
     priceGap,
     priceGapPercent,
@@ -266,8 +295,11 @@ function getMatchRank(matchType: MatchType): number {
   return 3;
 }
 
-/** exact: all core conditions match; close: one differs; reference_only: two or more differ. */
-function deriveMatchType(mismatchCount: number): MatchType {
+function deriveMatchType(
+  mismatchCount: number,
+  comparableFieldCount: number
+): MatchType {
+  if (comparableFieldCount < 2) return "reference_only";
   if (mismatchCount === 0) return "exact";
   if (mismatchCount === 1) return "close";
   return "reference_only";

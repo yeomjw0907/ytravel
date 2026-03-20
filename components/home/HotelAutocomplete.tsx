@@ -1,19 +1,18 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface HotelSuggestionItem {
   id: string;
   slug: string;
   name: string;
-  /** UI 표시용. 한글명 (영문명) 등 */
   displayName?: string;
   city: string;
   country?: string;
 }
 
 const DEBOUNCE_MS = 280;
-const AUTCOMPLETE_ID = "hotel-autocomplete-listbox";
+const AUTOCOMPLETE_ID = "hotel-autocomplete-listbox";
 
 async function fetchSuggestions(q: string): Promise<HotelSuggestionItem[]> {
   if (!q.trim()) return [];
@@ -23,10 +22,6 @@ async function fetchSuggestions(q: string): Promise<HotelSuggestionItem[]> {
   return data.suggestions ?? [];
 }
 
-/**
- * 호텔명 입력 + 자동완성. 선택 시 입력값을 해당 호텔명으로 설정.
- * name="hotelName" 등 폼 필드로 동작.
- */
 export function HotelAutocomplete({
   name = "hotelName",
   label = "호텔명",
@@ -54,30 +49,41 @@ export function HotelAutocomplete({
       setOpen(false);
       return;
     }
+
     setLoading(true);
-    fetchSuggestions(q).then((list) => {
-      setSuggestions(list);
-      setHighlight(0);
-      setOpen(list.length > 0);
-      setLoading(false);
-    });
+    fetchSuggestions(q)
+      .then((list) => {
+        setSuggestions(list);
+        setHighlight(0);
+        setOpen(list.length > 0);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => runSearch(value), DEBOUNCE_MS);
+
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [value, runSearch]);
+  }, [runSearch, value]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const activeId =
+    open && suggestions[highlight]
+      ? `${AUTOCOMPLETE_ID}-${suggestions[highlight].id}`
+      : undefined;
 
   const select = (item: HotelSuggestionItem) => {
     setValue(item.displayName ?? item.name);
@@ -85,25 +91,32 @@ export function HotelAutocomplete({
     setSuggestions([]);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open) {
-      if (e.key === "ArrowDown" && suggestions.length > 0) setOpen(true);
+      if (e.key === "ArrowDown" && suggestions.length > 0) {
+        e.preventDefault();
+        setOpen(true);
+      }
       return;
     }
+
     if (e.key === "Escape") {
       setOpen(false);
       return;
     }
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlight((i) => (i < suggestions.length - 1 ? i + 1 : 0));
+      setHighlight((index) => (index < suggestions.length - 1 ? index + 1 : 0));
       return;
     }
+
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      setHighlight((i) => (i > 0 ? i - 1 : suggestions.length - 1));
+      setHighlight((index) => (index > 0 ? index - 1 : suggestions.length - 1));
       return;
     }
+
     if (e.key === "Enter" && suggestions[highlight]) {
       e.preventDefault();
       select(suggestions[highlight]);
@@ -113,7 +126,10 @@ export function HotelAutocomplete({
   return (
     <div className="flex flex-col gap-wt-1" ref={rootRef}>
       {label && (
-        <label htmlFor="hotel-autocomplete-input" className="text-wt-body-sm font-medium text-wt-text-primary">
+        <label
+          htmlFor="hotel-autocomplete-input"
+          className="text-wt-body-sm font-medium text-wt-text-primary"
+        >
           {label}
         </label>
       )}
@@ -122,6 +138,7 @@ export function HotelAutocomplete({
         <input
           id="hotel-autocomplete-input"
           type="text"
+          role="combobox"
           autoComplete="off"
           required={required}
           placeholder={placeholder}
@@ -130,32 +147,35 @@ export function HotelAutocomplete({
           onFocus={() => value.trim() && suggestions.length > 0 && setOpen(true)}
           onKeyDown={handleKeyDown}
           aria-autocomplete="list"
-          aria-controls={open ? AUTCOMPLETE_ID : undefined}
+          aria-controls={open ? AUTOCOMPLETE_ID : undefined}
           aria-expanded={open}
-          aria-activeDescendant={open && suggestions[highlight] ? `${AUTCOMPLETE_ID}-${suggestions[highlight].id}` : undefined}
+          aria-activedescendant={activeId}
           className="w-full rounded-wt-md border-2 border-wt-border bg-wt-panel px-wt-3 py-wt-2.5 text-wt-body-md text-wt-text-primary placeholder:text-wt-text-secondary transition-colors focus-wt hover:border-wt-brand-300 focus-visible:ring-wt-brand-500/20 disabled:bg-wt-surface disabled:text-wt-text-secondary"
         />
         {loading && (
-          <span className="absolute right-wt-3 top-1/2 -translate-y-1/2 text-wt-caption text-wt-text-secondary" aria-hidden>
-            검색 중…
+          <span
+            className="absolute right-wt-3 top-1/2 -translate-y-1/2 text-wt-caption text-wt-text-secondary"
+            aria-hidden
+          >
+            검색 중...
           </span>
         )}
         {open && suggestions.length > 0 && (
           <ul
-            id={AUTCOMPLETE_ID}
+            id={AUTOCOMPLETE_ID}
             role="listbox"
             className="absolute top-full left-0 z-20 mt-wt-1 max-h-60 w-full overflow-auto rounded-wt-md border border-wt-border bg-wt-panel py-wt-1 shadow-wt-soft"
           >
-            {suggestions.map((item, i) => (
+            {suggestions.map((item, index) => (
               <li
                 key={item.id}
                 role="option"
-                id={`${AUTCOMPLETE_ID}-${item.id}`}
-                aria-selected={i === highlight}
-                className={`cursor-pointer px-wt-3 py-wt-2 text-wt-body-sm text-wt-text-primary hover:bg-wt-surface focus:bg-wt-surface ${
-                  i === highlight ? "bg-wt-surface" : ""
+                id={`${AUTOCOMPLETE_ID}-${item.id}`}
+                aria-selected={index === highlight}
+                className={`cursor-pointer px-wt-3 py-wt-2 text-wt-body-sm text-wt-text-primary hover:bg-wt-surface ${
+                  index === highlight ? "bg-wt-surface" : ""
                 }`}
-                onMouseEnter={() => setHighlight(i)}
+                onMouseEnter={() => setHighlight(index)}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   select(item);

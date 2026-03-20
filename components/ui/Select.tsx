@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type SelectHTMLAttributes } from "react";
+import { forwardRef, useId, type SelectHTMLAttributes } from "react";
 
 export interface SelectOption {
   value: string;
@@ -14,13 +14,11 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   className?: string;
 }
 
-/**
- * 투숙 인원·객실 수 등 SearchBar 선택 필드 (12-component-spec)
- * Input과 동일한 스타일 톤 유지
- */
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error = false, className = "", id, ...rest }, ref) => {
-    const selectId = id ?? `select-${Math.random().toString(36).slice(2, 9)}`;
+    const generatedId = useId();
+    const selectId = id ?? generatedId;
+
     return (
       <div className="flex flex-col gap-wt-1">
         {label && (
@@ -46,4 +44,5 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     );
   }
 );
+
 Select.displayName = "Select";

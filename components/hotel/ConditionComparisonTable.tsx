@@ -1,13 +1,12 @@
 import type { RateOffer } from "@/lib/types/schema";
-import { getProviderDisplayName } from "@/lib/search/format";
-import { CONDITION_LABELS_KO } from "@/lib/search/format";
+import { CONDITION_LABELS_KO, getProviderDisplayName } from "@/lib/search/format";
 import {
   Table,
+  TableBody,
+  TableCell,
   TableHead,
   TableHeaderCell,
-  TableBody,
   TableRow,
-  TableCell,
 } from "@/components/ui";
 
 const ROW_DEFS: { key: keyof RateOffer["condition"] | "rawRoomName"; label: string }[] = [
@@ -22,42 +21,62 @@ function getCellValue(
   offer: RateOffer,
   key: (typeof ROW_DEFS)[number]["key"]
 ): string {
-  if (key === "rawRoomName")
-    return offer.rawRoomName ?? offer.condition.roomName ?? "—";
-  const c = offer.condition;
-  if (key === "taxIncluded")
-    return c.taxIncluded === true ? "포함" : c.taxIncluded === false ? "미포함" : "—";
-  if (key === "cancellationType")
-    return CONDITION_LABELS_KO.cancellationType[c.cancellationType];
-  if (key === "boardType") return CONDITION_LABELS_KO.boardType[c.boardType];
-  if (key === "paymentType") return CONDITION_LABELS_KO.paymentType[c.paymentType];
-  return "—";
+  if (key === "rawRoomName") {
+    return offer.rawRoomName ?? offer.condition.roomName ?? "-";
+  }
+
+  const condition = offer.condition;
+
+  if (key === "taxIncluded") {
+    return condition.taxIncluded === true
+      ? "포함"
+      : condition.taxIncluded === false
+        ? "별도"
+        : "정보 없음";
+  }
+
+  if (key === "cancellationType") {
+    return CONDITION_LABELS_KO.cancellationType[condition.cancellationType];
+  }
+
+  if (key === "boardType") {
+    return CONDITION_LABELS_KO.boardType[condition.boardType];
+  }
+
+  if (key === "paymentType") {
+    return CONDITION_LABELS_KO.paymentType[condition.paymentType];
+  }
+
+  return "-";
 }
 
 interface ConditionComparisonTableProps {
   offers: RateOffer[];
 }
 
-/**
- * 객실 조건 비교 표 (15-page-wireframes §6) — 차이 항목 시각적 정리
- */
-export function ConditionComparisonTable({ offers }: ConditionComparisonTableProps) {
+export function ConditionComparisonTable({
+  offers,
+}: ConditionComparisonTableProps) {
   if (offers.length === 0) return null;
 
   return (
     <Table>
       <TableHead>
         <TableHeaderCell>항목</TableHeaderCell>
-        {offers.map((o) => (
-          <TableHeaderCell key={o.id}>{getProviderDisplayName(o.providerId)}</TableHeaderCell>
+        {offers.map((offer) => (
+          <TableHeaderCell key={offer.id}>
+            {getProviderDisplayName(offer.providerId)}
+          </TableHeaderCell>
         ))}
       </TableHead>
       <TableBody>
         {ROW_DEFS.map(({ key, label }) => (
           <TableRow key={key}>
-            <TableCell className="font-medium text-wt-text-secondary">{label}</TableCell>
-            {offers.map((o) => (
-              <TableCell key={o.id}>{getCellValue(o, key)}</TableCell>
+            <TableCell className="font-medium text-wt-text-secondary">
+              {label}
+            </TableCell>
+            {offers.map((offer) => (
+              <TableCell key={offer.id}>{getCellValue(offer, key)}</TableCell>
             ))}
           </TableRow>
         ))}

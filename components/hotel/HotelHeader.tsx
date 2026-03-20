@@ -5,9 +5,6 @@ interface HotelHeaderProps {
   hotel: Hotel;
 }
 
-/**
- * 호텔 상세 상단 헤더 (12-component-spec §10, 15-page-wireframes §6)
- */
 export function HotelHeader({ hotel }: HotelHeaderProps) {
   return (
     <header className="border-b border-wt-border bg-wt-panel px-4 py-wt-5 sm:px-5 md:px-6 md:py-wt-6 lg:px-8">
@@ -24,6 +21,10 @@ export function HotelHeader({ hotel }: HotelHeaderProps) {
           href={hotel.officialSiteUrl}
           target="_blank"
           rel="noopener noreferrer"
+          data-track="external_link_click"
+          data-track-location="hotel_header_official"
+          data-track-provider="official"
+          data-track-url={hotel.officialSiteUrl}
           className="mt-wt-3 inline-flex items-center font-body text-wt-body-sm font-medium text-wt-brand-500 hover:underline focus-wt"
         >
           공식 사이트 보기

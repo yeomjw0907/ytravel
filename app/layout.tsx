@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BrgModalTrigger } from "@/components/layout/BrgModalTrigger";
+import { AnalyticsListener } from "@/components/analytics/AnalyticsListener";
 
 const displayFont = Cormorant_Garamond({
   subsets: ["latin"],
@@ -13,9 +14,9 @@ const displayFont = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Ytravel | BRG를 위한 호텔 요금 비교",
+  title: "Ytravel | 예약가 점검과 호텔 후보 탐색",
   description:
-    "Ytravel은 국내·해외 호텔 공식 홈페이지와 주요 예약 플랫폼의 요금을 비교해 BRG 가능성을 탐색하는 프리미엄 숙박 비교 서비스입니다.",
+    "Ytravel은 예약한 호텔 가격을 다시 점검하고, 지원 사이트 기준으로 더 저렴한 후보와 조건 차이를 빠르게 확인하도록 돕는 정보 서비스입니다.",
 };
 
 export default function RootLayout({
@@ -25,7 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={displayFont.variable}>
-      <body className="min-h-screen flex flex-col">
+      <body className="flex min-h-screen flex-col">
+        <AnalyticsListener />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

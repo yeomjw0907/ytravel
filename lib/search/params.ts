@@ -100,7 +100,7 @@ export function searchParamsToQuery(
     return {
       ok: false,
       reason: "missing",
-      message: "체크인·체크아웃 날짜를 입력해 주세요.",
+      message: "체크인과 체크아웃 날짜를 입력해 주세요.",
     };
   }
 
@@ -118,7 +118,7 @@ export function searchParamsToQuery(
     return {
       ok: false,
       reason: "invalid_dates",
-      message: "체크아웃은 체크인보다 이후여야 합니다.",
+      message: "체크아웃 날짜는 체크인보다 뒤여야 합니다.",
     };
   }
 
@@ -158,7 +158,7 @@ export function searchParamsToQuery(
       rooms,
       currency,
       locale,
-      roomName: roomName || "",
+      roomName,
       userBookedPrice,
       bookedBoardType,
       bookedCancellationType,

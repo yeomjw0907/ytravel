@@ -22,17 +22,18 @@ export function ProviderDetailCard({
   isBestCandidate,
 }: ProviderDetailCardProps) {
   const name = getProviderDisplayName(providerId);
-  const isFailed = fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
+  const isFailed =
+    fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
 
   if (isFailed) {
     return (
       <Card padding="md" className="border-wt-danger-bg/40">
         <div className="flex items-center justify-between">
           <span className="font-body font-medium text-wt-text-primary">{name}</span>
-          <span className="text-wt-caption text-wt-danger-text">요금 불러오기 실패</span>
+          <span className="text-wt-caption text-wt-danger-text">요금 확인 실패</span>
         </div>
         <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
-          {fetchStatus?.message ?? "해당 공급처 요금을 불러올 수 없습니다."}
+          {fetchStatus?.message ?? "현재 이 공급처의 요금을 확인하지 못했습니다."}
         </p>
       </Card>
     );
@@ -41,7 +42,7 @@ export function ProviderDetailCard({
   if (!offer) return null;
 
   const condition = offer.condition;
-  const buttonLabel = isOfficial ? "공식 사이트 보기" : "요금 보기";
+  const buttonLabel = isOfficial ? "공식 사이트 보기" : "외부 사이트에서 확인";
 
   return (
     <Card padding="md" hover className="transition-shadow duration-200">
@@ -55,7 +56,7 @@ export function ProviderDetailCard({
           )}
           {isBestCandidate && (
             <span className="rounded-wt-pill bg-wt-success-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-success-text">
-              최적
+              가장 저렴한 후보
             </span>
           )}
         </div>
@@ -72,7 +73,7 @@ export function ProviderDetailCard({
             ? "세금 포함"
             : condition.taxIncluded === false
               ? "세금 별도"
-              : "세금 모름"}
+              : "세금 정보 없음"}
         </ConditionBadge>
         <ConditionBadge variant="neutral">
           {CONDITION_LABELS_KO.boardType[condition.boardType]}
@@ -85,6 +86,10 @@ export function ProviderDetailCard({
         href={offer.deeplink}
         target="_blank"
         rel="noopener noreferrer"
+        data-track="external_link_click"
+        data-track-location="hotel_detail_provider_card"
+        data-track-provider={providerId}
+        data-track-url={offer.deeplink}
         className="mt-wt-4 inline-flex h-11 items-center justify-center rounded-wt-md bg-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-white transition-colors hover:bg-wt-brand-500 focus-wt"
       >
         {buttonLabel}

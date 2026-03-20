@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHotels, getHotelDisplayName } from "@/lib/mock/hotels";
 import { amadeusHotelAutocomplete, isAmadeusConfigured } from "@/lib/api/amadeus";
+import { getHotelDisplayName, getHotels } from "@/lib/mock/hotels";
 
 export interface HotelAutocompleteItem {
   id: string;
   slug: string;
   name: string;
-  /** UI 표시용. 한글명 (영문명) 형태 등 */
   displayName?: string;
   city: string;
   country?: string;
 }
 
 /**
- * GET /api/hotels/autocomplete?q=xxx - 호텔명 자동완성.
- * AMADEUS_CLIENT_ID/SECRET 있으면 Amadeus API 사용, 없으면 내부 목록 검색.
+ * GET /api/hotels/autocomplete?q=xxx
+ * Amadeus가 설정되어 있으면 우선 사용하고, 실패하면 로컬 목록으로 fallback 합니다.
  */
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
@@ -29,24 +28,27 @@ export async function GET(request: NextRequest) {
       const suggestions = await amadeusHotelAutocomplete(q);
       return NextResponse.json({ suggestions });
     }
-  } catch (_) {
-    // Amadeus 실패 시 내부 목록으로 fallback
+  } catch {
+    // Ignore and fall back to the local catalog.
   }
 
-  const hotels = getHotels();
-  const suggestions: HotelAutocompleteItem[] = hotels.filter(
-    (h) =>
-      h.name.toLowerCase().includes(lower) ||
-      h.slug.replace(/-/g, " ").includes(lower) ||
-      h.city.toLowerCase().includes(lower)
-  ).slice(0, 20).map((h) => ({
-    id: h.id,
-    slug: h.slug,
-    name: h.name,
-    displayName: getHotelDisplayName(h),
-    city: h.city,
-    country: h.country ?? undefined,
-  }));
+  const suggestions: HotelAutocompleteItem[] = getHotels()
+    .filter(
+      (hotel) =>
+        hotel.name.toLowerCase().includes(lower) ||
+        hotel.nameDisplay?.toLowerCase().includes(lower) ||
+        hotel.slug.replace(/-/g, " ").includes(lower) ||
+        hotel.city.toLowerCase().includes(lower)
+    )
+    .slice(0, 20)
+    .map((hotel) => ({
+      id: hotel.id,
+      slug: hotel.slug,
+      name: hotel.name,
+      displayName: getHotelDisplayName(hotel),
+      city: hotel.city,
+      country: hotel.country ?? undefined,
+    }));
 
   return NextResponse.json({ suggestions });
 }

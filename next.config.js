@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  distDir: ".next-build",
   images: {
     remotePatterns: [
       {
@@ -9,6 +10,10 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  webpack: (config) => {
+    config.cache = false;
+    return config;
   },
 };
 

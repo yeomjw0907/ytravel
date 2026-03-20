@@ -16,7 +16,6 @@ interface ProviderRateCardProps {
   isBestCandidate: boolean;
   userBookedPrice?: number;
   currency?: string;
-  /** 최적 후보 카드와 동일한 카드 스타일 + 버튼 문구 "바로가기" */
   variant?: "default" | "summary";
 }
 
@@ -30,14 +29,11 @@ export function ProviderRateCard({
   variant = "default",
 }: ProviderRateCardProps) {
   const name = getProviderDisplayName(providerId);
-  const isFailed = fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
+  const isFailed =
+    fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
   const showVsUserPrice =
-    offer &&
-    userBookedPrice != null &&
-    Number.isFinite(userBookedPrice);
-  const priceGap = showVsUserPrice
-    ? userBookedPrice! - offer.totalPrice
-    : null;
+    offer && userBookedPrice != null && Number.isFinite(userBookedPrice);
+  const priceGap = showVsUserPrice ? userBookedPrice! - offer.totalPrice : null;
   const isSummary = variant === "summary";
 
   if (isFailed) {
@@ -45,13 +41,16 @@ export function ProviderRateCard({
       <>
         <div className="flex items-center justify-between">
           <span className="font-body font-medium text-wt-text-primary">{name}</span>
-          <span className="text-wt-caption text-wt-danger-text">요금 불러오기 실패</span>
+          <span className="text-wt-caption text-wt-danger-text">
+            요금 확인 실패
+          </span>
         </div>
         <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
-          {fetchStatus?.message ?? "해당 공급처 요금을 불러올 수 없습니다."}
+          {fetchStatus?.message ?? "현재 이 공급처의 요금을 확인하지 못했습니다."}
         </p>
       </>
     );
+
     if (isSummary) {
       return (
         <div className={`${SUMMARY_CARD_CLASS} border-wt-danger-bg/50`}>
@@ -59,6 +58,7 @@ export function ProviderRateCard({
         </div>
       );
     }
+
     return (
       <Card padding="md" className="border-wt-danger-bg/50">
         {failureContent}
@@ -76,7 +76,7 @@ export function ProviderRateCard({
         <span className="font-body font-medium text-wt-text-primary">{name}</span>
         {isBestCandidate && (
           <span className="shrink-0 rounded-wt-pill bg-wt-success-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-success-text">
-            최적
+            가장 저렴한 후보
           </span>
         )}
       </div>
@@ -91,9 +91,11 @@ export function ProviderRateCard({
             </span>
           ) : priceGap < 0 ? (
             <span className="text-wt-danger-text">
-              내 예약가보다 {formatPrice(-priceGap, currency)} 비쌈
+              내 예약가보다 {formatPrice(-priceGap, currency)} 높음
             </span>
-          ) : null}
+          ) : (
+            <span>내 예약가와 동일</span>
+          )}
         </p>
       )}
       <div className="mt-wt-3 flex flex-wrap gap-wt-2">
@@ -111,9 +113,15 @@ export function ProviderRateCard({
         href={offer.deeplink}
         target="_blank"
         rel="noopener noreferrer"
-        className={`mt-wt-4 inline-flex items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-wt-brand-700 hover:bg-wt-info-bg focus-wt ${isSummary ? "h-11" : "h-10"}`}
+        data-track="external_link_click"
+        data-track-location={isSummary ? "provider_summary_card" : "provider_card"}
+        data-track-provider={providerId}
+        data-track-url={offer.deeplink}
+        className={`mt-wt-4 inline-flex items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-wt-brand-700 hover:bg-wt-info-bg focus-wt ${
+          isSummary ? "h-11" : "h-10"
+        }`}
       >
-        {isSummary ? "바로가기" : "요금 보기"}
+        {isSummary ? "외부 사이트에서 확인" : "요금 다시 확인"}
       </a>
     </>
   );
@@ -121,5 +129,6 @@ export function ProviderRateCard({
   if (isSummary) {
     return <div className={SUMMARY_CARD_CLASS}>{content}</div>;
   }
+
   return <Card padding="md" hover>{content}</Card>;
 }

@@ -7,6 +7,7 @@ import type { Hotel } from "@/lib/types/schema";
 
 const AMADEUS_TOKEN_URL = "https://test.api.amadeus.com/v1/security/oauth2/token";
 const AMADEUS_BASE = "https://test.api.amadeus.com/v1";
+const AMADEUS_BASE_V3 = "https://test.api.amadeus.com/v3";
 
 let cachedToken: { access_token: string; expires_at: number } | null = null;
 
@@ -90,6 +91,140 @@ export async function amadeusHotelAutocomplete(keyword: string): Promise<HotelSu
 
 export function isAmadeusConfigured(): boolean {
   return Boolean(process.env.AMADEUS_CLIENT_ID && process.env.AMADEUS_CLIENT_SECRET);
+}
+
+export function isAmadeusOffersEnabled(): boolean {
+  return process.env.AMADEUS_HOTEL_OFFERS_ENABLED === "true";
+}
+
+type AmadeusHotelOffersApiResponse = {
+  data?: Array<{
+    id?: string;
+    offers?: Array<{
+      id?: string;
+      checkInDate?: string;
+      checkOutDate?: string;
+      room?: {
+        typeEstimated?: { category?: string; bedType?: string; beds?: number };
+        description?: { text?: string; lang?: string };
+      };
+      guests?: { adults?: number };
+      price?: { currency?: string; total?: string; base?: string };
+      policies?: {
+        cancellations?: Array<{ type?: string; description?: { text?: string } }>;
+        paymentType?: string;
+      };
+      self?: string;
+      [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+  }>;
+  [key: string]: unknown;
+};
+
+export interface AmadeusRawHotelOffer {
+  hotelId: string;
+  offerId: string;
+  currency: string;
+  total: number;
+  base: number | null;
+  roomName: string;
+  rawRoomName: string | null;
+  adults: number | null;
+  paymentTypeRaw: string | null;
+  cancellationTypeRaw: string | null;
+  deeplink: string | null;
+  collectedAt: string;
+}
+
+function parseAmadeusMoney(value: string | undefined): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Amadeus Hotel Search API - Hotel Offers (v3).
+ * - 일반적으로 `GET /v3/shopping/hotel-offers?hotelIds=...` 형태를 사용.
+ * - 계정/권한에 따라 `by-hotel` 변형이 필요할 수 있어, 1차 시도 후 실패 시 fallback을 시도.
+ */
+export async function amadeusHotelOffers(
+  hotelId: string,
+  checkInDate: string,
+  checkOutDate: string,
+  adults: number,
+  rooms: number
+): Promise<AmadeusRawHotelOffer[]> {
+  if (!isAmadeusConfigured()) return [];
+  const token = await getAccessToken();
+  const collectedAt = new Date().toISOString();
+
+  const common = new URLSearchParams();
+  common.set("checkInDate", checkInDate);
+  common.set("checkOutDate", checkOutDate);
+  common.set("adults", String(Math.max(1, adults)));
+  // rooms 파라미터는 계정/버전에 따라 없을 수 있어 optional로 보냄
+  if (rooms && rooms > 0) common.set("roomQuantity", String(rooms));
+
+  const urls = [
+    `${AMADEUS_BASE_V3}/shopping/hotel-offers?hotelIds=${encodeURIComponent(hotelId)}&${common.toString()}`,
+    `${AMADEUS_BASE}/shopping/hotel-offers/by-hotel?hotelId=${encodeURIComponent(hotelId)}&${common.toString()}`,
+  ];
+
+  for (const url of urls) {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 0 },
+    });
+
+    if (!res.ok) {
+      if (res.status === 404 || res.status === 422) continue;
+      // 다른 URL도 시도
+      continue;
+    }
+
+    const json = (await res.json()) as AmadeusHotelOffersApiResponse;
+    const firstHotel = (json.data ?? [])[0];
+    const offers = firstHotel?.offers ?? [];
+    const normalized: AmadeusRawHotelOffer[] = offers
+      .map((o) => {
+        const currency = o.price?.currency ?? "";
+        const total = parseAmadeusMoney(o.price?.total);
+        if (!currency || total == null) return null;
+
+        const base = parseAmadeusMoney(o.price?.base);
+        const roomCategory = o.room?.typeEstimated?.category?.trim() ?? "";
+        const rawRoom = o.room?.description?.text?.trim() ?? null;
+        const roomName = roomCategory || rawRoom || "Unknown room";
+
+        const cancellationRaw =
+          o.policies?.cancellations?.[0]?.type ??
+          o.policies?.cancellations?.[0]?.description?.text ??
+          null;
+
+        const paymentTypeRaw = o.policies?.paymentType ?? null;
+
+        return {
+          hotelId,
+          offerId: o.id ?? `${hotelId}_${Math.random().toString(36).slice(2)}`,
+          currency,
+          total,
+          base: base == null ? null : base,
+          roomName,
+          rawRoomName: rawRoom,
+          adults: o.guests?.adults ?? null,
+          paymentTypeRaw,
+          cancellationTypeRaw: cancellationRaw,
+          deeplink: (typeof o.self === "string" && o.self) || null,
+          collectedAt,
+        } satisfies AmadeusRawHotelOffer;
+      })
+      .filter((x): x is AmadeusRawHotelOffer => Boolean(x));
+
+    return normalized;
+  }
+
+  return [];
 }
 
 /** slug 생성: hotelId 기반 (호텔 상세 링크·캐시 키용) */

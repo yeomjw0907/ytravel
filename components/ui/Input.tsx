@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type InputHTMLAttributes } from "react";
+import { forwardRef, useId, type InputHTMLAttributes } from "react";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -8,13 +8,11 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
 
-/**
- * SearchBar 등 공통 입력 필드 (06-design-system 5.2, 12-component-spec §3)
- * 포커스 시 shadow-focus, error 시 danger 테두리
- */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error = false, className = "", id, ...rest }, ref) => {
-    const inputId = id ?? `input-${Math.random().toString(36).slice(2, 9)}`;
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
+
     return (
       <div className="flex flex-col gap-wt-1">
         {label && (
@@ -36,4 +34,5 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     );
   }
 );
+
 Input.displayName = "Input";

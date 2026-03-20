@@ -7,8 +7,7 @@ interface BrgLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 /**
- * BRG 설명 모달을 띄우는 링크. Next.js Link의 hash 전환은 hashchange를 유발하지 않을 수 있어
- * 클릭 시 직접 location.hash를 설정해 BrgModalTrigger가 반응하도록 함.
+ * BRG 안내 모달을 여는 해시 링크입니다.
  */
 export function BrgLink({ children, className, ...rest }: BrgLinkProps) {
   return (

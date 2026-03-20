@@ -56,7 +56,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_REQUEST",
-      message: "Request body is required.",
+      message: "요청 본문이 필요합니다.",
     };
   }
 
@@ -101,7 +101,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_REQUEST",
-      message: "Check-in and check-out dates are required.",
+      message: "체크인과 체크아웃 날짜를 입력해 주세요.",
     };
   }
 
@@ -111,7 +111,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_DATE_RANGE",
-      message: "Dates are invalid.",
+      message: "날짜 형식이 올바르지 않습니다.",
     };
   }
 
@@ -119,7 +119,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_DATE_RANGE",
-      message: "Check-out must be later than check-in.",
+      message: "체크아웃 날짜는 체크인보다 뒤여야 합니다.",
     };
   }
 
@@ -127,7 +127,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_REQUEST",
-      message: "Adults must be at least 1.",
+      message: "성인 인원은 1명 이상이어야 합니다.",
     };
   }
 
@@ -135,7 +135,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_REQUEST",
-      message: "Rooms must be at least 1.",
+      message: "객실 수는 1실 이상이어야 합니다.",
     };
   }
 
@@ -143,7 +143,7 @@ export function validateSearchBody(
     return {
       ok: false,
       code: "INVALID_REQUEST",
-      message: "Booked price must be greater than 0.",
+      message: "예약가는 0보다 커야 합니다.",
     };
   }
 

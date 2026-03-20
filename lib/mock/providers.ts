@@ -1,8 +1,7 @@
 import type { Provider, ProviderLink } from "@/lib/types/schema";
+import { isAmadeusOffersEnabled } from "@/lib/api/amadeus";
 
-/** 호텔·일정·인원이 채워진 fallback 링크를 만들 때 쓰는 검색 컨텍스트 */
 export interface FallbackLinkContext {
-  /** 검색지 (도시명 또는 호텔명) */
   destination: string;
   checkIn: string;
   checkOut: string;
@@ -10,14 +9,10 @@ export interface FallbackLinkContext {
   rooms: number;
 }
 
-/** providerId별로 호텔/일정/인원이 반영된 검색 URL 생성. 사이트별 파라미터는 추후 조정 가능. */
-function buildFallbackUrl(
-  providerId: string,
-  ctx: FallbackLinkContext
-): string {
-  const enc = encodeURIComponent;
+function buildFallbackUrl(providerId: string, ctx: FallbackLinkContext): string {
   const { destination, checkIn, checkOut, adults, rooms } = ctx;
-  const q = destination.trim();
+  const query = destination.trim();
+
   switch (providerId) {
     case "kayak": {
       const params = new URLSearchParams({
@@ -26,7 +21,7 @@ function buildFallbackUrl(
         adults: String(adults),
         rooms: String(rooms),
       });
-      if (q) params.set("destination", q);
+      if (query) params.set("destination", query);
       return `https://www.kayak.com/hotels?${params.toString()}`;
     }
     case "momondo": {
@@ -36,7 +31,7 @@ function buildFallbackUrl(
         adults: String(adults),
         rooms: String(rooms),
       });
-      if (q) params.set("destination", q);
+      if (query) params.set("destination", query);
       return `https://www.momondo.com/hotels/?${params.toString()}`;
     }
     case "wego": {
@@ -46,7 +41,7 @@ function buildFallbackUrl(
         adults: String(adults),
         rooms: String(rooms),
       });
-      if (q) params.set("query", q);
+      if (query) params.set("query", query);
       return `https://www.wego.com/hotels?${params.toString()}`;
     }
     case "trivago": {
@@ -57,15 +52,14 @@ function buildFallbackUrl(
         adults: String(adults),
         rooms: String(rooms),
       });
-      if (q) params.set("search", q);
+      if (query) params.set("search", query);
       return `https://www.trivago.com/?${params.toString()}`;
     }
     default:
-      return FALLBACK_LINKS.find((l) => l.providerId === providerId)?.url ?? "#";
+      return FALLBACK_LINKS.find((link) => link.providerId === providerId)?.url ?? "#";
   }
 }
 
-/** Automated providers: compared against user's booked price. Trip.com, Traveloka, Vio.com. */
 const AUTOMATED_PROVIDERS: Provider[] = [
   {
     id: "trip-com",
@@ -96,13 +90,20 @@ const AUTOMATED_PROVIDERS: Provider[] = [
   },
 ];
 
-/** IDs of automated providers (for fetch statuses and mock offers). */
-export const AUTOMATED_PROVIDER_IDS = AUTOMATED_PROVIDERS.map((p) => p.id);
+const AMADEUS_PROVIDER: Provider = {
+  id: "amadeus",
+  name: "Amadeus Live",
+  type: "ota",
+  capability: "automated",
+  baseUrl: "https://developers.amadeus.com/",
+  logoUrl: null,
+  status: "beta",
+};
 
-/**
- * Link-only fallback providers: no automated comparison; user can open for manual check.
- * KAYAK, momondo, Wego, trivago.
- */
+export const AUTOMATED_PROVIDER_IDS = AUTOMATED_PROVIDERS.map(
+  (provider) => provider.id
+);
+
 const FALLBACK_LINKS: ProviderLink[] = [
   {
     providerId: "kayak",
@@ -131,18 +132,22 @@ const FALLBACK_LINKS: ProviderLink[] = [
 ];
 
 export function getProviders(): Provider[] {
-  return [...AUTOMATED_PROVIDERS];
+  return isAmadeusOffersEnabled()
+    ? [AMADEUS_PROVIDER]
+    : [...AUTOMATED_PROVIDERS];
 }
 
 export function getProviderById(id: string): Provider | undefined {
-  return AUTOMATED_PROVIDERS.find((p) => p.id === id);
+  return [...AUTOMATED_PROVIDERS, AMADEUS_PROVIDER].find(
+    (provider) => provider.id === id
+  );
 }
 
-/**
- * Returns link-only providers for manual verification.
- * 현재 메타검색 사이트들은 URL 쿼리로 검색 조건을 받지 않거나 내부 location ID를 써서,
- * 조건을 채운 URL을 만들 수 없음. 기본 호텔 검색 페이지만 열고, 사용자가 같은 조건을 입력하도록 안내.
- */
-export function getFallbackLinks(_context?: FallbackLinkContext | null): ProviderLink[] {
-  return FALLBACK_LINKS.map((l) => ({ ...l }));
+export function getFallbackLinks(
+  context?: FallbackLinkContext | null
+): ProviderLink[] {
+  return FALLBACK_LINKS.map((link) => ({
+    ...link,
+    url: context ? buildFallbackUrl(link.providerId, context) : link.url,
+  }));
 }

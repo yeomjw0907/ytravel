@@ -3,26 +3,15 @@
  */
 
 export function formatPrice(amount: number, currency: string): string {
-  if (currency === "KRW") return `KRW ${amount.toLocaleString("ko-KR")}`;
-  if (currency === "USD") {
-    return `$${amount.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
+  try {
+    return new Intl.NumberFormat(currency === "KRW" ? "ko-KR" : "en-US", {
+      style: "currency",
+      currency,
       maximumFractionDigits: 0,
-    })}`;
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`;
   }
-  if (currency === "GBP") {
-    return `GBP ${amount.toLocaleString("en-GB", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })}`;
-  }
-  if (currency === "EUR") {
-    return `EUR ${amount.toLocaleString("de-DE", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })}`;
-  }
-  return `${currency} ${amount.toLocaleString()}`;
 }
 
 export function formatDateRange(checkIn: string, checkOut: string): string {
@@ -76,7 +65,8 @@ export function getProviderDisplayName(providerId: string): string {
     momondo: "momondo",
     wego: "Wego",
     trivago: "trivago",
-    official: "Official site",
+    official: "공식 사이트",
+    amadeus: "Amadeus Live",
   };
 
   return names[providerId] ?? providerId;
@@ -114,7 +104,6 @@ export const CONDITION_LABELS = {
   },
 } as const;
 
-/** UI용 한국어 조건 라벨 */
 export const CONDITION_LABELS_KO = {
   boardType: {
     room_only: "객실만",
@@ -130,7 +119,7 @@ export const CONDITION_LABELS_KO = {
   },
   paymentType: {
     pay_now: "즉시 결제",
-    pay_later: "나중에 결제",
+    pay_later: "나중 결제",
     pay_at_hotel: "현장 결제",
     unknown: "모름",
   },

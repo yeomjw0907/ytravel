@@ -15,7 +15,9 @@ interface ConditionSummaryProps {
 }
 
 export function ConditionSummary({ evaluation }: ConditionSummaryProps) {
-  const matched = evaluation.matchedFields.map((field) => FIELD_LABELS[field] ?? field);
+  const matched = evaluation.matchedFields.map(
+    (field) => FIELD_LABELS[field] ?? field
+  );
   const mismatched = evaluation.mismatchedFields.map(
     (field) => FIELD_LABELS[field] ?? field
   );
@@ -25,7 +27,7 @@ export function ConditionSummary({ evaluation }: ConditionSummaryProps) {
   return (
     <div className="rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:p-wt-8">
       <h3 className="font-display text-wt-h3 text-wt-text-primary">
-        조건 매칭 (내 예약 대비)
+        조건 비교 요약
       </h3>
       <div className="mt-wt-4 flex flex-wrap gap-wt-2">
         {matched.map((label) => (
@@ -35,7 +37,7 @@ export function ConditionSummary({ evaluation }: ConditionSummaryProps) {
         ))}
         {mismatched.map((label) => (
           <ConditionBadge key={`mismatch-${label}`} variant="warning">
-            {label} 검토
+            {label} 확인 필요
           </ConditionBadge>
         ))}
       </div>
