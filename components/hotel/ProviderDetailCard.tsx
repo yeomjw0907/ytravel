@@ -24,6 +24,7 @@ export function ProviderDetailCard({
   const name = getProviderDisplayName(providerId);
   const isFailed =
     fetchStatus?.status === "failed" || fetchStatus?.status === "timeout";
+  const isReference = fetchStatus?.status === "reference";
 
   if (isFailed) {
     return (
@@ -33,7 +34,7 @@ export function ProviderDetailCard({
           <span className="text-wt-caption text-wt-danger-text">요금 확인 실패</span>
         </div>
         <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
-          {fetchStatus?.message ?? "현재 이 공급처의 요금을 확인하지 못했습니다."}
+          {fetchStatus?.message ?? "이번 검색에서는 이 공급처의 결과를 확인하지 못했습니다."}
         </p>
       </Card>
     );
@@ -42,7 +43,7 @@ export function ProviderDetailCard({
   if (!offer) return null;
 
   const condition = offer.condition;
-  const buttonLabel = isOfficial ? "공식 사이트 보기" : "외부 사이트에서 확인";
+  const buttonLabel = isOfficial ? "공식 사이트 보기" : "같은 조건으로 다시 확인";
 
   return (
     <Card padding="md" hover className="transition-shadow duration-200">
@@ -52,6 +53,11 @@ export function ProviderDetailCard({
           {isOfficial && (
             <span className="rounded-wt-pill bg-wt-info-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-info-text">
               공식
+            </span>
+          )}
+          {isReference && (
+            <span className="rounded-wt-pill bg-wt-info-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-info-text">
+              참고 후보
             </span>
           )}
           {isBestCandidate && (
@@ -82,6 +88,11 @@ export function ProviderDetailCard({
           {CONDITION_LABELS_KO.paymentType[condition.paymentType]}
         </ConditionBadge>
       </div>
+      {isReference && (
+        <p className="mt-wt-3 text-wt-caption leading-relaxed text-wt-text-secondary">
+          실시간 확정가가 아니라 외부 사이트로 다시 이동하기 위한 참고 후보입니다.
+        </p>
+      )}
       <a
         href={offer.deeplink}
         target="_blank"

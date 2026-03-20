@@ -1,22 +1,20 @@
 /**
  * Search service: user's booked price vs OTA candidates.
- * - Uses configured automated providers for offers and fetch statuses.
- * - Fallback links are link-only sites for manual verification.
+ * - Uses live providers when available.
+ * - Falls back to reference candidates for launch-safe outbound verification.
  * - Best candidate is ranked by match quality first, then price.
  */
 import type {
   BrgConfidence,
   BrgEvaluation,
   MatchType,
-  ProviderFetchStatus,
   RateOffer,
   SearchQuery,
   SearchResult,
 } from "@/lib/types/schema";
 import { resolveHotelForSearch } from "@/lib/api/hotels";
-import { getOffersForHotel } from "@/lib/api/offers";
-import { getFallbackLinks, getProviders } from "@/lib/mock/providers";
-import { MOCK_FAILED_PROVIDER_IDS } from "@/lib/mock/offers";
+import { getOfferCollection } from "@/lib/api/offers";
+import { getFallbackLinks } from "@/lib/mock/providers";
 
 interface OfferComparison {
   offer: RateOffer;
@@ -33,53 +31,42 @@ interface OfferComparison {
 export async function search(query: SearchQuery): Promise<SearchResult> {
   const now = new Date().toISOString();
   const hotel = await resolveHotelForSearch(query.hotelName, query.destination);
-  const offers = hotel ? await getOffersForHotel(hotel, query) : [];
-
-  const providers = getProviders();
-  const fetchStatuses = buildFetchStatuses(
-    providers.map((provider) => provider.id),
-    now
-  );
+  const offerCollection = hotel
+    ? await getOfferCollection(hotel, query)
+    : {
+        providers: [],
+        offers: [],
+        fetchStatuses: [],
+        dataMode: "reference" as const,
+      };
 
   const brgEvaluation =
-    hotel && offers.length > 0
-      ? evaluateBestCandidateAgainstUserBooking(offers, query)
+    hotel && offerCollection.offers.length > 0
+      ? evaluateBestCandidateAgainstUserBooking(offerCollection.offers, query)
       : null;
 
   const fallbackContext = {
-    destination: hotel?.city ?? query.hotelName ?? "",
+    hotelName: hotel?.nameDisplay ?? hotel?.name ?? query.hotelName,
+    destination: query.destination ?? hotel?.city ?? null,
     checkIn: query.checkIn,
     checkOut: query.checkOut,
     adults: query.adults,
+    children: query.children,
     rooms: query.rooms,
+    locale: query.locale,
   };
 
   return {
     query,
     hotel,
-    providers,
-    offers,
-    fetchStatuses,
+    providers: offerCollection.providers,
+    offers: offerCollection.offers,
+    fetchStatuses: offerCollection.fetchStatuses,
     brgEvaluation,
     fallbackLinks: getFallbackLinks(fallbackContext),
     generatedAt: now,
+    offerDataMode: offerCollection.dataMode,
   };
-}
-
-function buildFetchStatuses(
-  providerIds: string[],
-  fetchedAt: string
-): ProviderFetchStatus[] {
-  return providerIds.map((providerId) => {
-    const isFailed = MOCK_FAILED_PROVIDER_IDS.has(providerId);
-    return {
-      providerId,
-      status: isFailed ? "failed" : "success",
-      message: isFailed ? "현재 공급처 응답이 없습니다." : null,
-      latencyMs: isFailed ? null : 500 + Math.floor(Math.random() * 300),
-      fetchedAt,
-    };
-  });
 }
 
 export function evaluateBrgForOffers(
@@ -108,7 +95,7 @@ function evaluateBestCandidateAgainstUserBooking(
       matchType: "none",
       matchedFields: [],
       mismatchedFields: [],
-      reasons: ["지원 공급처에서 후보 요금을 찾지 못했습니다."],
+      reasons: ["비교 가능한 후보 요금을 찾지 못했습니다."],
     };
   }
 
@@ -160,7 +147,7 @@ function evaluateBestCandidateAgainstUserBooking(
     reasons:
       best.priceGap > 0
         ? best.reasons
-        : ["현재 확인된 후보 중 내 예약가보다 더 저렴한 가격은 없습니다."],
+        : ["현재 확인한 후보 중 예약가보다 더 저렴한 가격은 없습니다."],
   };
 }
 
@@ -249,19 +236,19 @@ function compareOfferAgainstUserBooking(
   const reasons: string[] = [];
 
   if (comparableFieldCount < 2) {
-    reasons.push("비교 가능한 조건 정보가 충분하지 않아 참고용으로만 보세요.");
+    reasons.push("비교 가능한 조건 정보가 부족해 참고용 후보로만 봐야 합니다.");
   } else if (matchType === "exact") {
-    reasons.push("핵심 조건이 대부분 일치합니다.");
+    reasons.push("핵심 조건이 모두 일치합니다.");
   } else if (matchType === "close") {
     reasons.push("대체로 비슷하지만 일부 조건은 다시 확인해야 합니다.");
   } else {
-    reasons.push("조건 차이가 있어 바로 비교하기 어렵습니다.");
+    reasons.push("조건 차이가 있어 참고용 후보로 보는 것이 안전합니다.");
   }
 
   reasons.push(
     priceGap > 0
-      ? "현재 후보가 내 예약가보다 낮습니다."
-      : "현재 후보가 내 예약가보다 낮지는 않습니다."
+      ? "현재 후보가 내 예약가보다 저렴합니다."
+      : "현재 후보가 내 예약가보다 저렴하지 않습니다."
   );
 
   return {

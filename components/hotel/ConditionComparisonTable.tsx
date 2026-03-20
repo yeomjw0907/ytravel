@@ -11,8 +11,8 @@ import {
 
 const ROW_DEFS: { key: keyof RateOffer["condition"] | "rawRoomName"; label: string }[] = [
   { key: "rawRoomName", label: "객실명" },
-  { key: "cancellationType", label: "취소 정책" },
-  { key: "boardType", label: "조식" },
+  { key: "cancellationType", label: "취소 조건" },
+  { key: "boardType", label: "식사 조건" },
   { key: "taxIncluded", label: "세금" },
   { key: "paymentType", label: "결제 방식" },
 ];

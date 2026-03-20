@@ -2,7 +2,7 @@ import type { RateCondition, RateOffer } from "@/lib/types/schema";
 
 const COLLECTED_AT = "2026-03-09T10:00:00.000Z";
 
-/** Optional: add automated provider IDs here to simulate fetch failure. */
+/** Optional: add provider IDs here to simulate fetch failure. */
 export const MOCK_FAILED_PROVIDER_IDS = new Set<string>();
 
 function buildCondition(
@@ -22,6 +22,16 @@ function buildCondition(
   };
 }
 
+function withDeeplink(
+  offers: RateOffer[],
+  deeplinksByProvider: Partial<Record<string, string>>
+): RateOffer[] {
+  return offers.map((offer) => ({
+    ...offer,
+    deeplink: deeplinksByProvider[offer.providerId] ?? offer.deeplink,
+  }));
+}
+
 const OFFERS_GH_SEOUL: RateOffer[] = [
   {
     id: "offer_trip_gh_1",
@@ -37,7 +47,7 @@ const OFFERS_GH_SEOUL: RateOffer[] = [
     condition: buildCondition(),
     rawRoomName: "King Room - Free Cancellation",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_traveloka_gh_1",
@@ -53,7 +63,7 @@ const OFFERS_GH_SEOUL: RateOffer[] = [
     condition: buildCondition({ paymentType: "pay_later" }),
     rawRoomName: "King Room - Pay Later",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_vio_gh_1",
@@ -69,7 +79,7 @@ const OFFERS_GH_SEOUL: RateOffer[] = [
     condition: buildCondition({ boardType: "breakfast_included" }),
     rawRoomName: "King Room with Breakfast",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
 ];
 
@@ -91,7 +101,7 @@ const OFFERS_PP_LONDON: RateOffer[] = [
     }),
     rawRoomName: "Superior Double - Free Cancellation",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_traveloka_pp_1",
@@ -110,7 +120,7 @@ const OFFERS_PP_LONDON: RateOffer[] = [
     }),
     rawRoomName: "Superior Double - Pay Later",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_vio_pp_1",
@@ -129,7 +139,7 @@ const OFFERS_PP_LONDON: RateOffer[] = [
     }),
     rawRoomName: "Superior Twin Room",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
 ];
 
@@ -150,7 +160,7 @@ const OFFERS_STANDARD_NYC: RateOffer[] = [
     }),
     rawRoomName: "Standard King - Free Cancellation",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_traveloka_std_1",
@@ -169,7 +179,7 @@ const OFFERS_STANDARD_NYC: RateOffer[] = [
     }),
     rawRoomName: "Standard King - Pay Later",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
   {
     id: "offer_vio_std_1",
@@ -188,13 +198,22 @@ const OFFERS_STANDARD_NYC: RateOffer[] = [
     }),
     rawRoomName: "Standard King with Breakfast",
     available: true,
-    disclaimer: null,
+    disclaimer: "Reference data. Recheck the same conditions on the provider site.",
   },
 ];
 
-export function getMockOffersForHotel(hotelId: string): RateOffer[] {
-  if (hotelId === "hotel_gh_seoul") return [...OFFERS_GH_SEOUL];
-  if (hotelId === "hotel_pp_westminster") return [...OFFERS_PP_LONDON];
-  if (hotelId === "hotel_standard_highline") return [...OFFERS_STANDARD_NYC];
+export function getMockOffersForHotel(
+  hotelId: string,
+  deeplinksByProvider: Partial<Record<string, string>> = {}
+): RateOffer[] {
+  if (hotelId === "hotel_gh_seoul") {
+    return withDeeplink(OFFERS_GH_SEOUL, deeplinksByProvider);
+  }
+  if (hotelId === "hotel_pp_westminster") {
+    return withDeeplink(OFFERS_PP_LONDON, deeplinksByProvider);
+  }
+  if (hotelId === "hotel_standard_highline") {
+    return withDeeplink(OFFERS_STANDARD_NYC, deeplinksByProvider);
+  }
   return [];
 }

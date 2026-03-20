@@ -36,7 +36,7 @@ export interface Hotel {
 
 export type ProviderType = "official" | "ota";
 export type ProviderStatus = "active" | "beta" | "disabled";
-export type ProviderCapability = "automated" | "link_only";
+export type ProviderCapability = "automated" | "reference" | "link_only";
 
 export interface Provider {
   id: string;
@@ -99,7 +99,8 @@ export type ProviderFetchStatusType =
   | "success"
   | "partial"
   | "failed"
-  | "timeout";
+  | "timeout"
+  | "reference";
 
 export interface ProviderFetchStatus {
   providerId: string;
@@ -117,13 +118,11 @@ export type BrgEligibility =
 
 export type BrgConfidence = "high" | "medium" | "low";
 export type MatchType = "exact" | "close" | "reference_only" | "none";
+export type OfferDataMode = "live" | "reference";
 
 /**
  * User's booked price vs best OTA candidate comparison.
- * Baseline is always the user's booked price; candidate is the best offer from automated providers.
- * - exact: all core conditions match (room, board, cancellation, tax, occupancy).
- * - close: one condition differs.
- * - reference_only: multiple conditions differ or data missing.
+ * Baseline is always the user's booked price; candidate is the best offer from available providers.
  */
 export interface BrgEvaluation {
   comparisonOfferId: string | null;
@@ -140,7 +139,6 @@ export interface BrgEvaluation {
   reasons: string[];
 }
 
-/** Link-only provider for manual check when automated comparison is unavailable or as fallback. */
 export interface ProviderLink {
   providerId: string;
   name: string;
@@ -157,4 +155,5 @@ export interface SearchResult {
   brgEvaluation: BrgEvaluation | null;
   fallbackLinks: ProviderLink[];
   generatedAt: string;
+  offerDataMode: OfferDataMode;
 }

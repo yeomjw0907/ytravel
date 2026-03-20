@@ -1,4 +1,4 @@
-import type { BrgEvaluation } from "@/lib/types/schema";
+import type { BrgEvaluation, OfferDataMode } from "@/lib/types/schema";
 import { formatPrice } from "@/lib/search/format";
 import { StatusPill } from "@/components/ui";
 
@@ -8,6 +8,7 @@ interface BrgSummaryCardProps {
   collectedAt?: string;
   bestOfferDeeplink?: string | null;
   bestOfferProviderName?: string | null;
+  dataMode?: OfferDataMode;
 }
 
 const ELIGIBILITY_VARIANT: Record<
@@ -46,6 +47,7 @@ export function BrgSummaryCard({
   collectedAt,
   bestOfferDeeplink,
   bestOfferProviderName,
+  dataMode = "live",
 }: BrgSummaryCardProps) {
   const variant = ELIGIBILITY_VARIANT[evaluation.eligibility];
   const statusLabel = ELIGIBILITY_LABEL[evaluation.eligibility];
@@ -56,7 +58,7 @@ export function BrgSummaryCard({
       <div className="flex flex-wrap items-start justify-between gap-wt-3">
         <div>
           <h2 className="font-display text-wt-h3 text-wt-text-primary">
-            예약가 대비 후보 요약
+            예약가 점검 요약
           </h2>
           <p className="mt-wt-1.5 text-wt-body-sm leading-relaxed text-wt-text-secondary">
             {MATCH_LABEL[evaluation.matchType]} · 신뢰도{" "}
@@ -94,7 +96,7 @@ export function BrgSummaryCard({
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-brand-700">
             {evaluation.priceGap != null
               ? `${formatPrice(Math.abs(evaluation.priceGap), currency)} ${
-                  evaluation.priceGap > 0 ? "저렴" : "높음"
+                  evaluation.priceGap > 0 ? "저렴" : "비쌈"
                 }`
               : "-"}
           </p>
@@ -117,9 +119,10 @@ export function BrgSummaryCard({
         </p>
       )}
       <p className="mt-wt-2 text-wt-caption leading-relaxed text-wt-text-secondary">
-        지원 사이트 기준의 참고 정보입니다. 최종 예약 전에는 외부 사이트에서
-        객실 조건과 총액을 다시 확인하세요. BRG 승인 여부는 호텔 정책에 따라
-        달라질 수 있습니다.
+        {dataMode === "reference"
+          ? "이번 결과는 실시간 확정가가 아니라 같은 조건으로 다시 확인하기 위한 참고 후보입니다."
+          : "이 결과는 수집 시점 기준 정보이며 실제 예약 직전 다시 확인하는 것이 안전합니다."}{" "}
+        BRG 승인 여부는 호텔 정책에 따라 달라질 수 있습니다.
       </p>
       {bestOfferDeeplink && (
         <a

@@ -119,7 +119,7 @@ export const CONDITION_LABELS_KO = {
   },
   paymentType: {
     pay_now: "즉시 결제",
-    pay_later: "나중 결제",
+    pay_later: "후결제",
     pay_at_hotel: "현장 결제",
     unknown: "모름",
   },

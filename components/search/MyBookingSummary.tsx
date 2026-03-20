@@ -44,7 +44,7 @@ export function MyBookingSummary({
             객실 · 일정
           </p>
           <p className="mt-wt-1 font-body text-wt-body-md text-wt-text-primary">
-            {query.roomName.trim() || "객실 미지정"}
+            {query.roomName.trim() || "객실명 미입력"}
           </p>
           <p className="mt-wt-0.5 text-wt-caption text-wt-text-secondary">
             {dateRange}
@@ -55,7 +55,7 @@ export function MyBookingSummary({
             인원 · 객실 수
           </p>
           <p className="mt-wt-1 font-body text-wt-body-md text-wt-text-primary">
-            성인 {query.adults}명 · 객실 {query.rooms}실
+            성인 {query.adults}명 · 객실 {query.rooms}개
           </p>
         </div>
         <div>

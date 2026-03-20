@@ -122,15 +122,17 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
   if (!result.hotel) notFound();
 
   const highlightedOfferId = result.brgEvaluation?.comparisonOfferId ?? null;
-  const offerByProvider = new Map(result.offers.map((offer) => [offer.providerId, offer]));
+  const offerByProvider = new Map(
+    result.offers.map((offer) => [offer.providerId, offer])
+  );
   const collectedAt = result.offers[0]
     ? formatCollectedAt(result.offers[0].collectedAt)
     : undefined;
 
   const searchSummary =
     `${formatDateRange(result.query.checkIn, result.query.checkOut)} · ` +
-    `성인 ${result.query.adults}명, 객실 ${result.query.rooms}실 · ` +
-    (result.query.roomName?.trim() || "객실 미지정");
+    `성인 ${result.query.adults}명 · 객실 ${result.query.rooms}개 · ` +
+    (result.query.roomName?.trim() || "객실명 미입력");
 
   return (
     <div className="min-h-screen bg-wt-bg">
@@ -162,40 +164,55 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           </Link>
         </div>
 
+        {result.offerDataMode === "reference" && (
+          <section className="mb-wt-6 rounded-wt-lg border border-wt-info-bg bg-wt-info-bg px-wt-4 py-wt-3 md:mb-wt-8">
+            <p className="font-body text-wt-body-sm font-semibold text-wt-info-text">
+              이 상세 화면은 참고 후보 모드입니다.
+            </p>
+            <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
+              현재는 공급처별 실시간 확정가 대신 외부 사이트로 다시 이동할 수 있는 참고 후보를 보여주고
+              있습니다.
+            </p>
+          </section>
+        )}
+
         {result.brgEvaluation && (
           <section className="mb-wt-6 md:mb-wt-8">
             <BrgSummaryCard
               evaluation={result.brgEvaluation}
               currency={result.query.currency}
               collectedAt={collectedAt}
+              dataMode={result.offerDataMode}
             />
           </section>
         )}
 
-        <section className="mt-wt-8 md:mt-wt-10">
-          <h2 className="font-display text-wt-h3 text-wt-text-primary">
-            공급처별 상세
-          </h2>
-          <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
-            자동 수집된 요금과 조건을 확인하세요.
-          </p>
-          <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
-            {result.providers.map((provider) => (
-              <ProviderDetailCard
-                key={provider.id}
-                offer={offerByProvider.get(provider.id) ?? null}
-                providerId={provider.id}
-                fetchStatus={result.fetchStatuses.find(
-                  (status) => status.providerId === provider.id
-                )}
-                isOfficial={provider.type === "official"}
-                isBestCandidate={
-                  offerByProvider.get(provider.id)?.id === highlightedOfferId
-                }
-              />
-            ))}
-          </div>
-        </section>
+        {result.providers.length > 0 && (
+          <section className="mt-wt-8 md:mt-wt-10">
+            <h2 className="font-display text-wt-h3 text-wt-text-primary">
+              공급처별 상세
+            </h2>
+            <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
+              공급처별 후보 가격과 조건을 확인한 뒤 외부 사이트에서 같은 조건으로 다시 확인해 주세요.
+            </p>
+            <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
+              {result.providers.map((provider) => (
+                <ProviderDetailCard
+                  key={provider.id}
+                  offer={offerByProvider.get(provider.id) ?? null}
+                  providerId={provider.id}
+                  fetchStatus={result.fetchStatuses.find(
+                    (status) => status.providerId === provider.id
+                  )}
+                  isOfficial={provider.type === "official"}
+                  isBestCandidate={
+                    offerByProvider.get(provider.id)?.id === highlightedOfferId
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {result.offers.length > 0 && (
           <section className="mt-wt-8 md:mt-wt-10">

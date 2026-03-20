@@ -20,7 +20,7 @@ export function SearchSummaryBar({ query, hotelName }: SearchSummaryBarProps) {
         <span className="text-wt-text-secondary">{dateRange}</span>
         <span className="mx-wt-2 text-wt-text-secondary">·</span>
         <span className="text-wt-text-secondary">
-          성인 {query.adults}명 · 객실 {query.rooms}실
+          성인 {query.adults}명 · 객실 {query.rooms}개
         </span>
         <span className="mx-wt-2 text-wt-text-secondary">·</span>
         <span className="text-wt-text-secondary">
