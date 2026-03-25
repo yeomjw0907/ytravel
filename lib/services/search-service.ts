@@ -95,7 +95,7 @@ function evaluateBestCandidateAgainstUserBooking(
       matchType: "none",
       matchedFields: [],
       mismatchedFields: [],
-      reasons: ["비교 가능한 후보 요금을 찾지 못했습니다."],
+      reasons: ["비교 가능한 후보 가격을 찾지 못했습니다."],
     };
   }
 
@@ -147,7 +147,7 @@ function evaluateBestCandidateAgainstUserBooking(
     reasons:
       best.priceGap > 0
         ? best.reasons
-        : ["현재 확인한 후보 중 예약가보다 더 저렴한 가격은 없습니다."],
+        : ["현재 확인된 후보 중 예약가보다 더 저렴한 가격은 없습니다."],
   };
 }
 
@@ -236,13 +236,13 @@ function compareOfferAgainstUserBooking(
   const reasons: string[] = [];
 
   if (comparableFieldCount < 2) {
-    reasons.push("비교 가능한 조건 정보가 부족해 참고용 후보로만 봐야 합니다.");
+    reasons.push("비교 가능한 조건 정보가 부족해 참고 후보로만 봐야 합니다.");
   } else if (matchType === "exact") {
-    reasons.push("핵심 조건이 모두 일치합니다.");
+    reasons.push("주요 조건이 모두 일치합니다.");
   } else if (matchType === "close") {
     reasons.push("대체로 비슷하지만 일부 조건은 다시 확인해야 합니다.");
   } else {
-    reasons.push("조건 차이가 있어 참고용 후보로 보는 것이 안전합니다.");
+    reasons.push("조건 차이가 있어 참고 후보로 보는 것이 안전합니다.");
   }
 
   reasons.push(

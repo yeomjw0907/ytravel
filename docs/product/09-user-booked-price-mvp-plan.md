@@ -154,7 +154,11 @@ Use a hybrid model:
 - a small number of supported sites for automated comparison
 - a broader set of sites as link-out fallback options
 
-### Initial Automated OTAs
+### Initial Automated Provider
+
+- `Amadeus hotel offers` when enabled and verified
+
+### Initial Reference Providers
 
 - `Trip.com`
 - `Traveloka`
@@ -162,10 +166,10 @@ Use a hybrid model:
 
 ### Initial Link-Only Sites
 
-- `Kayak`
-- `Momondo`
+- `KAYAK`
+- `momondo`
 - `Wego`
-- `Trivago`
+- `trivago`
 
 ## 14. Site Prioritization Principle
 
@@ -183,8 +187,9 @@ This means Ytravel should not attempt to integrate every travel site in the init
 Recommended public positioning:
 
 - "Search across hotels broadly."
-- "Automatically compare on supported sites."
-- "Use quick links for additional candidate checks."
+- "Automatically compare only on explicitly supported live providers."
+- "Show reference candidates for additional re-checks."
+- "Use quick links for broader manual verification."
 - "Confidence labels show how closely the candidate matches your booking."
 
 Avoid claiming:
@@ -327,4 +332,3 @@ Fallback behavior:
 Use this product direction when implementing:
 
 > Build Ytravel as a hotel price comparison MVP centered on the user's booked price, not official hotel price crawling. The main flow is: user enters reservation details, the system checks supported OTA sources, normalizes candidate offers, compares them against the user's booked price, and shows the cheapest valid candidate with a confidence label. Support automated comparison for Trip.com, Traveloka, and Vio.com first. Support Kayak, Momondo, Wego, and Trivago as link-out fallback sources. Always show exact match, close match, or reference only. If automation fails, do not dead-end; show fallback links and an honest unavailable state.
-

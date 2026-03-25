@@ -88,7 +88,7 @@ const TAX_OPTIONS = [
 
 const PAYMENT_OPTIONS = [
   { value: "pay_now", label: "즉시 결제" },
-  { value: "pay_later", label: "나중 결제" },
+  { value: "pay_later", label: "후결제" },
   { value: "pay_at_hotel", label: "현장 결제" },
   { value: "unknown", label: "모름" },
 ];
@@ -154,7 +154,7 @@ export function SearchForm() {
             className="inline-block shrink-0 text-wt-text-secondary transition-transform group-open:rotate-90"
             aria-hidden
           >
-            ▶
+            ▸
           </span>
           <span>예약 조건 더 입력하기</span>
           <span className="text-wt-caption font-normal text-wt-text-secondary">
@@ -163,8 +163,8 @@ export function SearchForm() {
         </summary>
         <div className="border-t border-wt-border px-wt-4 pb-wt-4 pt-wt-3">
           <p className="hero-form-details__title">
-            객실명, 조식, 취소, 세금, 결제 조건을 입력하면 더 보수적으로 비교할
-            수 있습니다.
+            객실명, 조식, 취소, 세금, 결제 조건을 입력하면 더 보수적으로 비교해
+            드립니다.
           </p>
           <div className="grid grid-cols-2 gap-wt-4 sm:grid-cols-4">
             <Input

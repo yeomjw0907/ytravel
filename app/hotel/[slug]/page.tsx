@@ -153,9 +153,7 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           <span className="text-wt-caption font-medium text-wt-text-secondary">
             검색 요약
           </span>
-          <span className="text-wt-body-sm text-wt-text-primary">
-            {searchSummary}
-          </span>
+          <span className="text-wt-body-sm text-wt-text-primary">{searchSummary}</span>
           <Link
             href={`/search?${toSearchQueryString(result.query)}`}
             className="ml-auto rounded-wt-sm text-wt-body-sm font-medium text-wt-brand-700 hover:underline focus-wt"
@@ -167,11 +165,11 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
         {result.offerDataMode === "reference" && (
           <section className="mb-wt-6 rounded-wt-lg border border-wt-info-bg bg-wt-info-bg px-wt-4 py-wt-3 md:mb-wt-8">
             <p className="font-body text-wt-body-sm font-semibold text-wt-info-text">
-              이 상세 화면은 참고 후보 모드입니다.
+              이 상세 화면은 참고 후보 모드입니다
             </p>
             <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-              현재는 공급처별 실시간 확정가 대신 외부 사이트로 다시 이동할 수 있는 참고 후보를 보여주고
-              있습니다.
+              현재는 공급처별 실시간 확정가 대신 외부 사이트에서 다시 확인할 수 있는
+              참고 후보를 보여주고 있습니다.
             </p>
           </section>
         )}
@@ -193,7 +191,8 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
               공급처별 상세
             </h2>
             <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
-              공급처별 후보 가격과 조건을 확인한 뒤 외부 사이트에서 같은 조건으로 다시 확인해 주세요.
+              공급처별 후보 가격과 조건을 확인한 뒤, 외부 사이트에서 같은 조건으로 다시
+              확인해 주세요.
             </p>
             <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.providers.map((provider) => (

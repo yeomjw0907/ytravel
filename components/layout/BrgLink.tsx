@@ -7,7 +7,7 @@ interface BrgLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 /**
- * BRG 안내 모달을 여는 해시 링크입니다.
+ * BRG 안내 모달을 여는 해시 링크다.
  */
 export function BrgLink({ children, className, ...rest }: BrgLinkProps) {
   return (

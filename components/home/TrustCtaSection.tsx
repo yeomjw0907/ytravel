@@ -7,12 +7,12 @@ const linkButtonBase =
 
 export function TrustCtaSection() {
   return (
-    <section className="border-t border-wt-border bg-wt-surface pt-wt-16 pb-wt-14 md:pt-wt-24 md:pb-wt-18">
+    <section className="border-t border-wt-border bg-wt-surface pb-wt-14 pt-wt-16 md:pb-wt-18 md:pt-wt-24">
       <Container size="lg">
         <p className="max-w-2xl font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
-          표시 가격은 수집 시점 기준이며 실제 예약 화면과 다를 수 있습니다.
-          최종 예약 전에는 외부 사이트에서 객실 조건과 총액을 다시 확인하세요.
-          BRG 적용 여부는 호텔 브랜드 정책에 따라 달라질 수 있습니다.
+          표시된 가격은 수집 시점 기준이며 실제 예약 화면과 다를 수 있습니다. 최종 예약
+          전에는 외부 사이트에서 객실 조건과 총액을 다시 확인해 주세요. BRG 적용 여부는
+          호텔 브랜드 정책에 따라 달라질 수 있습니다.
         </p>
         <div className="mt-wt-6 flex flex-wrap gap-wt-3 sm:gap-wt-4">
           <Link

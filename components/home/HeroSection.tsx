@@ -38,11 +38,11 @@ export function HeroSection() {
           <h1 className="mt-wt-4 font-display text-2xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)] sm:text-3xl md:text-4xl md:leading-[1.15]">
             예약한 호텔 가격,
             <br />
-            지금 다시 점검하세요
+            지금 다시 점검해보세요
           </h1>
           <p className="mt-wt-4 font-body text-base leading-relaxed !text-white md:text-lg [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">
-            호텔, 일정, 객실, 예약가를 입력하면 지원 사이트 기준으로 더 저렴한
-            후보와 조건 일치 수준을 보여드립니다.
+            호텔, 일정, 객실, 예약가를 입력하면 지원 사이트 기준으로 더 저렴한 후보와
+            조건 차이를 빠르게 보여드립니다.
           </p>
         </div>
 

@@ -164,7 +164,7 @@ export function HotelAutocomplete({
           <ul
             id={AUTOCOMPLETE_ID}
             role="listbox"
-            className="absolute top-full left-0 z-20 mt-wt-1 max-h-60 w-full overflow-auto rounded-wt-md border border-wt-border bg-wt-panel py-wt-1 shadow-wt-soft"
+            className="absolute left-0 top-full z-20 mt-wt-1 max-h-60 w-full overflow-auto rounded-wt-md border border-wt-border bg-wt-panel py-wt-1 shadow-wt-soft"
           >
             {suggestions.map((item, index) => (
               <li

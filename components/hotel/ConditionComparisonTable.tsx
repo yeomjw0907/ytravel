@@ -4,8 +4,8 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeaderCell,
+  TableHead,
   TableRow,
 } from "@/components/ui";
 

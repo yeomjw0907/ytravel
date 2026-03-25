@@ -16,7 +16,7 @@ const displayFont = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "Ytravel | 예약가 점검과 호텔 후보 탐색",
   description:
-    "Ytravel은 예약한 호텔 가격을 다시 점검하고, 지원 사이트 기준으로 더 저렴한 후보와 조건 차이를 빠르게 확인하도록 돕는 정보 서비스입니다.",
+    "Ytravel은 예약한 호텔 가격을 다시 점검하고, 지원 사이트 기준으로 더 저렴한 후보와 조건 차이를 빠르게 확인하도록 돕는 서비스입니다.",
 };
 
 export default function RootLayout({

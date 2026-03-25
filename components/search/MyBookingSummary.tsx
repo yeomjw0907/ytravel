@@ -27,9 +27,7 @@ export function MyBookingSummary({
       </h2>
       <div className="mt-wt-5 grid grid-cols-1 gap-wt-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="text-wt-caption font-medium text-wt-text-secondary">
-            호텔
-          </p>
+          <p className="text-wt-caption font-medium text-wt-text-secondary">호텔</p>
           <p className="mt-wt-1 font-body text-wt-body-md font-medium text-wt-text-primary">
             {displayName}
           </p>
@@ -59,9 +57,7 @@ export function MyBookingSummary({
           </p>
         </div>
         <div>
-          <p className="text-wt-caption font-medium text-wt-text-secondary">
-            예약가
-          </p>
+          <p className="text-wt-caption font-medium text-wt-text-secondary">예약가</p>
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-text-primary">
             {formatPrice(query.userBookedPrice, query.currency)}
           </p>

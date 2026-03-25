@@ -80,14 +80,14 @@ export function DateRangeField({
             </span>
           )}
           <span className="text-wt-text-secondary" aria-hidden>
-            {open ? "▲" : "▼"}
+            {open ? "▴" : "▾"}
           </span>
         </span>
       </button>
 
       {open && (
         <div
-          className="absolute top-full left-0 z-20 mt-wt-1 w-full min-w-[280px] max-w-[calc(100vw-2.5rem)] rounded-wt-lg border border-wt-border bg-wt-panel shadow-wt-soft md:min-w-[320px]"
+          className="absolute left-0 top-full z-20 mt-wt-1 w-full min-w-[280px] max-w-[calc(100vw-2.5rem)] rounded-wt-lg border border-wt-border bg-wt-panel shadow-wt-soft md:min-w-[320px]"
           role="dialog"
           aria-label="체크인 체크아웃 날짜 선택"
         >
@@ -96,7 +96,7 @@ export function DateRangeField({
               숙박 기간 선택
             </p>
             <p className="mt-wt-0.5 text-wt-caption text-wt-text-secondary">
-              체크인과 체크아웃 날짜를 선택하세요.
+              체크인과 체크아웃 날짜를 선택해 주세요.
             </p>
           </div>
           <div className="flex flex-col gap-wt-4 p-wt-4">

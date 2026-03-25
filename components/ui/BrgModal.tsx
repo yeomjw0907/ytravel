@@ -3,11 +3,11 @@
 import { useEffect } from "react";
 
 const BRG_STEPS = [
-  "같은 객실명, 같은 일정, 같은 인원 조건인지 확인합니다.",
-  "취소 규정과 조식 포함 여부가 같은지 확인합니다.",
+  "같은 객실명, 같은 일정, 같은 인원 조건인지 먼저 확인합니다.",
+  "취소 규정과 조식 포함 여부가 같은지 다시 확인합니다.",
   "외부 사이트에서 실제 총액을 다시 확인합니다.",
-  "세금, 지역 수수료, 회원가 적용 여부를 확인합니다.",
-  "해당 호텔 브랜드의 BRG 정책을 마지막으로 확인합니다.",
+  "세금, 수수료, 프로모션 적용 여부를 확인합니다.",
+  "해당 호텔 브랜드의 BRG 정책을 마지막으로 직접 확인합니다.",
 ];
 
 interface BrgModalProps {
@@ -58,18 +58,17 @@ export function BrgModal({ onClose }: BrgModalProps) {
             Best Rate Guarantee (최저가 보장)
           </p>
           <p className="mt-wt-2 font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            일부 호텔 브랜드는 공식 사이트보다 더 낮은 가격을 외부 사이트에서
-            찾았을 때 가격을 맞춰주거나 추가 혜택을 제공하는 BRG 정책을
-            운영합니다.
+            일부 호텔 브랜드는 공식 사이트보다 더 낮은 가격을 외부 사이트에서 찾으면
+            가격을 맞춰주거나 추가 혜택을 주는 BRG 정책을 운영합니다.
           </p>
 
           <p className="mt-wt-5 font-body text-wt-body-sm font-medium text-wt-text-primary">
             Ytravel의 역할
           </p>
           <p className="mt-wt-1 font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            Ytravel은 예약가와 외부 후보를 비교해 BRG를 검토할 만한 상황인지
-            빠르게 파악하도록 돕습니다. 다만 BRG 승인 여부를 확정하지는 않으며,
-            실제 적용 여부는 호텔 브랜드 정책과 제출 시점 조건에 따라 달라집니다.
+            Ytravel은 예약가와 외부 후보를 비교해 BRG를 검토할 만한 상황인지 빠르게
+            파악하도록 돕습니다. 다만 BRG 승인 여부를 확정하지 않으며, 실제 적용 여부는
+            호텔 브랜드 정책과 제출 시점 조건에 따라 달라집니다.
           </p>
 
           <p className="mt-wt-5 font-body text-wt-body-sm font-medium text-wt-text-primary">
@@ -84,8 +83,8 @@ export function BrgModal({ onClose }: BrgModalProps) {
           </ol>
 
           <p className="mt-wt-5 rounded-wt-md border border-wt-info-bg bg-wt-info-bg/50 px-wt-4 py-wt-3 font-body text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            BRG 가능성은 참고 정보입니다. 호텔 공식 정책과 실제 예약 화면을 다시
-            확인한 뒤 진행해 주세요.
+            BRG 가능성은 참고 정보입니다. 호텔 공식 정책과 실제 예약 화면을 다시 확인한
+            뒤 진행해 주세요.
           </p>
 
           <div className="mt-wt-6 flex justify-end">

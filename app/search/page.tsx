@@ -44,7 +44,7 @@ export default async function SearchPage({ searchParams }: Props) {
         <PageAnalytics event="no_result" properties={{ reason: "hotel_not_found" }} />
         <EmptyState
           title="호텔을 찾지 못했습니다"
-          description="호텔명을 다시 입력하거나 영문 호텔명을 함께 넣어 다시 검색해 주세요."
+          description="호텔명을 다시 입력하거나 영문 호텔명을 함께 적어 다시 검색해 주세요."
           showSearchLink
         />
       </>
@@ -111,11 +111,12 @@ export default async function SearchPage({ searchParams }: Props) {
         {hasReferenceMode && (
           <section className="mb-wt-6 rounded-wt-lg border border-wt-info-bg bg-wt-info-bg px-wt-4 py-wt-3 md:mb-wt-8">
             <p className="font-body text-wt-body-sm font-semibold text-wt-info-text">
-              이번 검색은 참고 후보 모드입니다.
+              이번 검색은 참고 후보 모드입니다
             </p>
             <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-              현재는 실시간 전수 수집 대신, 같은 조건으로 다시 확인할 수 있는 공급처별 참고 후보를
-              보여주고 있습니다. 가격과 조건은 외부 사이트에서 최종 확인해 주세요.
+              현재는 실시간 확정가 대신 같은 조건으로 다시 확인할 수 있는 공급처 기준
+              참고 후보를 보여주고 있습니다. 가격과 조건은 외부 사이트에서 최종 확인해
+              주세요.
             </p>
           </section>
         )}
@@ -164,8 +165,8 @@ export default async function SearchPage({ searchParams }: Props) {
                 </h2>
                 <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
                   {hasReferenceMode
-                    ? "외부 사이트로 이동하기 전, 어느 공급처가 더 저렴해 보이는지 빠르게 확인하는 영역입니다."
-                    : "자동으로 확인된 공급처 기준의 비교 결과입니다. 수집 시점 이후 가격이 바뀔 수 있습니다."}
+                    ? "외부 사이트로 이동하기 전 어떤 공급처가 더 유력해 보이는지 빠르게 확인하는 영역입니다."
+                    : "자동으로 확인된 공급처 기준의 비교 결과입니다. 수집 시점 이후 가격은 달라질 수 있습니다."}
                 </p>
               </div>
               <p className="text-wt-caption leading-relaxed text-wt-text-secondary">
@@ -198,12 +199,12 @@ export default async function SearchPage({ searchParams }: Props) {
             직접 다시 확인할 사이트
           </h2>
           <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            아래 링크는 가능한 범위에서 같은 호텔명, 같은 날짜, 같은 인원 조건을 유지한 검색 페이지로
-            이동합니다.
+            아래 링크는 가능한 범위에서 같은 호텔명, 같은 날짜, 같은 인원 조건으로
+            검색 결과 페이지에 이동합니다.
           </p>
           <p className="mt-wt-1 text-wt-caption leading-relaxed text-wt-text-secondary">
-            일부 공급처는 최종 상세 페이지 대신 검색 결과 목록으로 이동할 수 있습니다. 이동 후 조건이
-            유지됐는지 한 번 더 확인해 주세요.
+            일부 공급처는 최종 상세 페이지 대신 검색 결과 목록으로 이동할 수 있습니다.
+            이동 후 조건이 유지되는지 한 번 더 확인해 주세요.
           </p>
           <div className="mt-wt-4 flex flex-wrap gap-wt-2 sm:gap-wt-3">
             {result.fallbackLinks.map((link) => (
@@ -226,9 +227,9 @@ export default async function SearchPage({ searchParams }: Props) {
 
         <div className="mt-wt-8 rounded-wt-lg border border-wt-border bg-wt-surface p-wt-4 md:mt-wt-10">
           <p className="text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            제시된 가격은 수집 시점 기준 정보이며 실제 예약 화면과 다를 수 있습니다. 세금, 수수료,
-            프로모션, 결제 방식, 객실 조건에 따라 총액이 달라질 수 있습니다. BRG 가능성은 참고 정보이며
-            승인 여부를 보장하지 않습니다.
+            표시된 가격은 수집 시점 기준 참고 정보이며 실제 예약 화면과 다를 수 있습니다.
+            세금, 수수료, 프로모션, 결제 방식, 객실 조건에 따라 총액이 달라질 수 있습니다.
+            BRG 가능성은 참고 정보이며 승인 여부를 보장하지 않습니다.
           </p>
         </div>
       </Container>

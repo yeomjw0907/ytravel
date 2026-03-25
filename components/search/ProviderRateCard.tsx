@@ -42,10 +42,11 @@ export function ProviderRateCard({
       <>
         <div className="flex items-center justify-between">
           <span className="font-body font-medium text-wt-text-primary">{name}</span>
-          <span className="text-wt-caption text-wt-danger-text">요금 확인 실패</span>
+          <span className="text-wt-caption text-wt-danger-text">가격 확인 실패</span>
         </div>
         <p className="mt-wt-2 text-wt-body-sm text-wt-text-secondary">
-          {fetchStatus?.message ?? "이번 검색에서는 이 공급처의 결과를 불러오지 못했습니다."}
+          {fetchStatus?.message ??
+            "이번 검색에서는 이 공급처의 결과를 불러오지 못했습니다."}
         </p>
       </>
     );
@@ -81,7 +82,7 @@ export function ProviderRateCard({
           )}
           {isBestCandidate && (
             <span className="shrink-0 rounded-wt-pill bg-wt-success-bg px-wt-2 py-wt-0.5 text-wt-caption font-medium text-wt-success-text">
-              가장 저렴한 후보
+              가장 유력한 후보
             </span>
           )}
         </div>
@@ -117,7 +118,8 @@ export function ProviderRateCard({
       </div>
       {isReference && (
         <p className="mt-wt-3 text-wt-caption leading-relaxed text-wt-text-secondary">
-          이 카드는 실시간 확정가가 아니라 같은 조건으로 다시 확인하기 위한 참고 후보입니다.
+          이 카드는 실시간 확정가가 아니라 같은 조건으로 다시 확인하기 위한 참고
+          후보입니다.
         </p>
       )}
       <a

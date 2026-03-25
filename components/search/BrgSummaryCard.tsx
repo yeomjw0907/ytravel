@@ -24,14 +24,14 @@ const ELIGIBILITY_VARIANT: Record<
 const ELIGIBILITY_LABEL: Record<BrgEvaluation["eligibility"], string> = {
   likely: "조건이 잘 맞는 후보",
   review: "수동 확인 필요",
-  not_eligible: "더 싼 후보 없음",
+  not_eligible: "더 저렴한 후보 없음",
   insufficient_data: "비교 데이터 부족",
 };
 
 const MATCH_LABEL: Record<BrgEvaluation["matchType"], string> = {
   exact: "조건 일치",
   close: "유사 조건",
-  reference_only: "참고용 후보",
+  reference_only: "참고 후보",
   none: "비교 불가",
 };
 
@@ -90,9 +90,7 @@ export function BrgSummaryCard({
           </p>
         </div>
         <div>
-          <p className="text-wt-caption font-medium text-wt-text-secondary">
-            차액
-          </p>
+          <p className="text-wt-caption font-medium text-wt-text-secondary">차액</p>
           <p className="mt-wt-1 font-body text-wt-body-lg font-semibold tabular-nums text-wt-brand-700">
             {evaluation.priceGap != null
               ? `${formatPrice(Math.abs(evaluation.priceGap), currency)} ${
@@ -121,8 +119,8 @@ export function BrgSummaryCard({
       <p className="mt-wt-2 text-wt-caption leading-relaxed text-wt-text-secondary">
         {dataMode === "reference"
           ? "이번 결과는 실시간 확정가가 아니라 같은 조건으로 다시 확인하기 위한 참고 후보입니다."
-          : "이 결과는 수집 시점 기준 정보이며 실제 예약 직전 다시 확인하는 것이 안전합니다."}{" "}
-        BRG 승인 여부는 호텔 정책에 따라 달라질 수 있습니다.
+          : "이 결과는 수집 시점 기준 정보이며 실제 예약 직전에 다시 확인하는 것이 안전합니다."}{" "}
+        BRG 확인 여부는 호텔 정책에 따라 달라질 수 있습니다.
       </p>
       {bestOfferDeeplink && (
         <a
