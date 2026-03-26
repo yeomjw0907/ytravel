@@ -68,6 +68,9 @@ export default async function SearchPage({ searchParams }: Props) {
   const hasCandidate =
     result.brgEvaluation?.comparisonOfferId != null &&
     (result.brgEvaluation.priceGap ?? 0) > 0;
+  const hasVerifiedDeepLinks = result.fallbackLinks.some(
+    (link) => link.note === "Verified deep link for this itinerary."
+  );
 
   return (
     <div className="min-h-screen bg-wt-bg">
@@ -78,6 +81,7 @@ export default async function SearchPage({ searchParams }: Props) {
           offer_count: result.offers.length,
           provider_count: result.providers.length,
           data_mode: result.offerDataMode,
+          verified_link_set: hasVerifiedDeepLinks,
         }}
       />
       {hasCandidate && (

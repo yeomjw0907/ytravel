@@ -14,6 +14,7 @@ import {
 import { MOCK_FAILED_PROVIDER_IDS, getMockOffersForHotel } from "@/lib/mock/offers";
 import {
   buildProviderSearchUrl,
+  buildProviderOutboundLink,
   getAutomatedProviders,
   getProviderById,
   getReferenceProviders,
@@ -91,7 +92,8 @@ function buildReferenceCollection(
   const deeplinksByProvider = Object.fromEntries(
     providers.map((provider) => [
       provider.id,
-      buildProviderSearchUrl(provider.id, {
+      buildProviderOutboundLink(provider.id, hotel, {
+        hotelId: hotel.id,
         hotelName: hotel.nameDisplay ?? hotel.name,
         destination: query.destination ?? hotel.city,
         checkIn: query.checkIn,
@@ -169,6 +171,8 @@ async function buildLiveCollection(
             rooms: query.rooms,
             locale: query.locale,
           }),
+        linkKind: offer.deeplink ? "hotel_detail" : "provider_home",
+        hotelDetailUrl: offer.deeplink,
         currency: offer.currency,
         basePrice: base,
         taxAmount: taxAmount > 0 ? taxAmount : null,

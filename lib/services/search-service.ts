@@ -46,6 +46,7 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
       : null;
 
   const fallbackContext = {
+    hotelId: hotel?.id,
     hotelName: hotel?.nameDisplay ?? hotel?.name ?? query.hotelName,
     destination: query.destination ?? hotel?.city ?? null,
     checkIn: query.checkIn,

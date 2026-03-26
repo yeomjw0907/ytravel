@@ -2,6 +2,19 @@ import type { Hotel } from "@/lib/types/schema";
 
 export const MOCK_HOTELS: Hotel[] = [
   {
+    id: "hotel_phuket_marriott_merlin_beach",
+    slug: "phuket-marriott-resort-spa-merlin-beach",
+    name: "Phuket Marriott Resort & Spa, Merlin Beach",
+    nameDisplay: "Phuket Marriott Resort & Spa, Merlin Beach",
+    brand: "Marriott",
+    city: "Phuket",
+    country: "TH",
+    officialSiteUrl:
+      "https://www.marriott.com/en-us/hotels/hktmb-phuket-marriott-resort-and-spa-merlin-beach/overview/",
+    stars: 5,
+    thumbnailUrl: null,
+  },
+  {
     id: "hotel_gh_seoul",
     slug: "grand-hyatt-seoul",
     name: "Grand Hyatt Seoul",

@@ -58,9 +58,19 @@ export function nightsBetween(checkIn: string, checkOut: string): number {
 
 export function getProviderDisplayName(providerId: string): string {
   const names: Record<string, string> = {
+    booking: "Booking.com",
+    expedia: "Expedia",
+    "hotels-com": "Hotels.com",
     "trip-com": "Trip.com",
     traveloka: "Traveloka",
     vio: "Vio.com",
+    travelocity: "Travelocity",
+    stayforlong: "Stayforlong",
+    webjet: "Webjet",
+    interpark: "Interpark",
+    almosafer: "Almosafer",
+    smshoteldeals: "SMSHotelDeals",
+    hotelsugogo: "HotelsuGoGo",
     kayak: "KAYAK",
     momondo: "momondo",
     wego: "Wego",

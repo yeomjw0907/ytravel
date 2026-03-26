@@ -213,6 +213,35 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
           </section>
         )}
 
+        {result.fallbackLinks.length > 0 && (
+          <section className="mt-wt-8 rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:mt-wt-10 md:p-wt-8">
+            <h2 className="font-display text-wt-h3 text-wt-text-primary">
+              Verified Deep Links
+            </h2>
+            <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
+              Open the provider page with the selected hotel and itinerary already
+              applied when a verified link is available for this exact search.
+            </p>
+            <div className="mt-wt-4 flex flex-wrap gap-wt-2 sm:gap-wt-3">
+              {result.fallbackLinks.map((link) => (
+                <a
+                  key={link.providerId}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track="external_link_click"
+                  data-track-location="hotel_detail_verified_links"
+                  data-track-provider={link.providerId}
+                  data-track-url={link.url}
+                  className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-wt-brand-700 transition-colors hover:bg-wt-info-bg focus-wt"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
         {result.offers.length > 0 && (
           <section className="mt-wt-8 md:mt-wt-10">
             <h2 className="font-display text-wt-h3 text-wt-text-primary">
