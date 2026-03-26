@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const isVercel = process.env.VERCEL === "1";
+const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig = {
   reactStrictMode: true,
-  ...(isVercel ? {} : { distDir: ".next-build" }),
+  ...(!isVercel && !isDev ? { distDir: ".next-build" } : {}),
   images: {
     remotePatterns: [
       {

@@ -218,6 +218,159 @@ const LINK_ONLY_PROVIDERS: Provider[] = [
     logoUrl: null,
     status: "active",
   },
+  {
+    id: "travelko",
+    name: "Travelko",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.travelko.com/locale/en_US/hotel/list/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "via",
+    name: "Via.com",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://in.via.com/hotels/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "tui",
+    name: "TUI",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.tui.com/hotel/suchen/angebote/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "wingontravel",
+    name: "Wing On Travel",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.wingontravel.com/hotel/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "ab-in-den-urlaub",
+    name: "ab-in-den-urlaub",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.ab-in-den-urlaub.de/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "wbe-travel",
+    name: "WBE Travel",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://b2c.wbe.travel/hotel/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "destination2",
+    name: "Destination2",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.destination2.co.uk/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "dwidayatour",
+    name: "Dwi Daya Tour",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.dwidayatour.co.id/Hotel",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "esky",
+    name: "eSky",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.esky.com/stays",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "expediafortd",
+    name: "ExpediaForTD",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.expediafortd.com/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "hotelplanner",
+    name: "HotelPlanner",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.hotelplanner.com/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "musafir",
+    name: "Musafir",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://app.musafir.com/app/#/hotel",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "itinera",
+    name: "Itinera",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://book.itinera.com/hotels/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "ivivu",
+    name: "iVIVU",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.ivivu.com/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "monkeytravel",
+    name: "Monkey Travel",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.monkeytravel.com/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "rehlat",
+    name: "Rehlat",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.rehlat.com/en/cheap-hotels/",
+    logoUrl: null,
+    status: "beta",
+  },
+  {
+    id: "laterooms",
+    name: "LateRooms",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.laterooms.com/",
+    logoUrl: null,
+    status: "beta",
+  },
 ];
 
 const AUTOMATED_PROVIDER: Provider = {
@@ -229,6 +382,46 @@ const AUTOMATED_PROVIDER: Provider = {
   logoUrl: null,
   status: "beta",
 };
+
+const STABLE_DEEPLINK_PROVIDER_IDS = [
+  "booking",
+  "expedia",
+  "hotels-com",
+  "travelocity",
+  "traveloka",
+  "trip-com",
+  "stayforlong",
+  "webjet",
+  "interpark",
+  "almosafer",
+  "smshoteldeals",
+  "hotelsugogo",
+] as const;
+
+const SHORTCUT_PROVIDER_IDS = [
+  "vio",
+  "kayak",
+  "momondo",
+  "wego",
+  "trivago",
+  "travelko",
+  "via",
+  "tui",
+  "wingontravel",
+  "ab-in-den-urlaub",
+  "wbe-travel",
+  "destination2",
+  "dwidayatour",
+  "esky",
+  "expediafortd",
+  "hotelplanner",
+  "musafir",
+  "itinera",
+  "ivivu",
+  "monkeytravel",
+  "rehlat",
+  "laterooms",
+] as const;
 
 const HOTEL_PROVIDER_REFERENCES: Record<string, HotelProviderReference> = {
   hotel_phuket_marriott_merlin_beach: {
@@ -381,6 +574,21 @@ function getLinkNote(linkKind: ProviderLinkKind, ctx: SearchLinkContext): string
   return base;
 }
 
+function getShortcutLinkNote(
+  linkKind: ProviderLinkKind,
+  ctx: SearchLinkContext
+): string {
+  if (linkKind === "condition_search") {
+    if (ctx.children > 0 && !hasRequiredChildAges(ctx)) {
+      return "일반 바로가기 · 일부 아동 나이는 다시 입력해야 할 수 있습니다.";
+    }
+
+    return "일반 바로가기 · 가능한 경우 현재 조건을 담아 검색 결과로 이동합니다.";
+  }
+
+  return "일반 바로가기 · 호텔명이나 조건은 해당 사이트에서 다시 확인해 주세요.";
+}
+
 function buildProviderConditionSearchUrl(
   providerId: string,
   ctx: SearchLinkContext
@@ -459,6 +667,23 @@ function buildProviderConditionSearchUrl(
       });
       if (keyword) params.set("search", keyword);
       return `https://www.trivago.com/?${params.toString()}`;
+    }
+    case "travelko": {
+      const params = new URLSearchParams({
+        location: keyword || ctx.destination || ctx.hotelName,
+      });
+      const hashParams = new URLSearchParams({
+        adult: String(ctx.adults),
+        chkin: formatDateCompact(ctx.checkIn),
+        room: String(ctx.rooms),
+        stay: String(getStayLength(ctx)),
+      });
+
+      if (ctx.children > 0 && getChildAges(ctx).length > 0) {
+        hashParams.set("children", getChildAgeDash(ctx));
+      }
+
+      return `https://www.travelko.com/locale/en_US/hotel/list/?${params.toString()}#${hashParams.toString()}`;
     }
     default:
       return null;
@@ -838,10 +1063,7 @@ export function getFallbackLinks(
 ): ProviderLink[] {
   if (!hotel || !context) return [];
 
-  const providerIds = [
-    ...REFERENCE_PROVIDERS.map((provider) => provider.id),
-    ...LINK_ONLY_PROVIDERS.map((provider) => provider.id),
-  ];
+  const providerIds = [...STABLE_DEEPLINK_PROVIDER_IDS];
 
   const links: ProviderLink[] = [];
 
@@ -858,6 +1080,34 @@ export function getFallbackLinks(
       url: outbound.url,
       linkKind: outbound.linkKind,
       note: outbound.note ?? null,
+    });
+  }
+
+  return links;
+}
+
+export function getShortcutLinks(
+  hotel: Hotel | null,
+  context?: SearchLinkContext | null
+): ProviderLink[] {
+  if (!hotel || !context) return [];
+
+  const links: ProviderLink[] = [];
+
+  for (const providerId of SHORTCUT_PROVIDER_IDS) {
+    const provider = getProviderById(providerId);
+    if (!provider) continue;
+
+    const outbound = buildProviderOutboundLink(providerId, hotel, context);
+    if (outbound.url === "#") continue;
+
+    links.push({
+      providerId,
+      name: provider.name,
+      url: outbound.url,
+      linkKind:
+        outbound.linkKind === "hotel_detail" ? "provider_home" : outbound.linkKind,
+      note: getShortcutLinkNote(outbound.linkKind, context),
     });
   }
 

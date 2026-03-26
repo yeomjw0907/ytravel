@@ -162,6 +162,7 @@ export interface SearchResult {
   fetchStatuses: ProviderFetchStatus[];
   brgEvaluation: BrgEvaluation | null;
   fallbackLinks: ProviderLink[];
+  shortcutLinks: ProviderLink[];
   generatedAt: string;
   offerDataMode: OfferDataMode;
 }

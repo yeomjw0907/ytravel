@@ -14,7 +14,7 @@ import type {
 } from "@/lib/types/schema";
 import { resolveHotelForSearch } from "@/lib/api/hotels";
 import { getOfferCollection } from "@/lib/api/offers";
-import { getFallbackLinks } from "@/lib/mock/providers";
+import { getFallbackLinks, getShortcutLinks } from "@/lib/mock/providers";
 
 interface OfferComparison {
   offer: RateOffer;
@@ -66,6 +66,7 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
     fetchStatuses: offerCollection.fetchStatuses,
     brgEvaluation,
     fallbackLinks: getFallbackLinks(hotel, fallbackContext),
+    shortcutLinks: getShortcutLinks(hotel, fallbackContext),
     generatedAt: now,
     offerDataMode: offerCollection.dataMode,
   };
