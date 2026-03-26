@@ -12,6 +12,19 @@ interface MyBookingSummaryProps {
   hotelLocation?: string;
 }
 
+function formatGuestLine(query: SearchQuery): string {
+  const parts = [`성인 ${query.adults}명`];
+
+  if (query.children > 0) {
+    const ageText =
+      query.childAges.length > 0 ? ` (${query.childAges.join(", ")}세)` : "";
+    parts.push(`아동 ${query.children}명${ageText}`);
+  }
+
+  parts.push(`객실 ${query.rooms}개`);
+  return parts.join(" · ");
+}
+
 export function MyBookingSummary({
   query,
   hotelName,
@@ -53,7 +66,7 @@ export function MyBookingSummary({
             인원 · 객실 수
           </p>
           <p className="mt-wt-1 font-body text-wt-body-md text-wt-text-primary">
-            성인 {query.adults}명 · 객실 {query.rooms}개
+            {formatGuestLine(query)}
           </p>
         </div>
         <div>

@@ -14,6 +14,7 @@ export interface SearchLinkContext {
   checkOut: string;
   adults: number;
   children: number;
+  childAges: number[];
   rooms: number;
   locale: string;
 }
@@ -22,7 +23,43 @@ export interface ProviderOutboundLink {
   url: string;
   linkKind: ProviderLinkKind;
   hotelDetailUrl: string | null;
+  note?: string | null;
 }
+
+type HotelProviderReference = {
+  bookingPath?: string;
+  expediaPath?: string;
+  expediaDestination?: string;
+  expediaRegionId?: string;
+  hotelsComPath?: string;
+  hotelsComDestination?: string;
+  hotelsComRegionId?: string;
+  hotelsComSelectedId?: string;
+  travelocityPath?: string;
+  travelocityDestination?: string;
+  travelocityRegionId?: string;
+  stayforlongPath?: string;
+  tripCityEnName?: string;
+  tripCityId?: string;
+  tripHotelId?: string;
+  travelokaHotelId?: string;
+  travelokaHotelName?: string;
+  webjetArea?: string;
+  webjetAreaId?: string;
+  webjetFeaturedHotel?: string;
+  webjetHotel?: string;
+  webjetHotelId?: string;
+  interparkHotelCode?: string;
+  almosaferPath?: string;
+  smshoteldealsPropertyId?: string;
+  smshoteldealsDestinationCode?: string;
+  smshoteldealsSearchTerm?: string;
+  smshoteldealsStars?: [number, number];
+  hotelsugogoPropertyId?: string;
+  hotelsugogoDestinationCode?: string;
+  hotelsugogoSearchTerm?: string;
+  hotelsugogoStars?: [number, number];
+};
 
 const REFERENCE_PROVIDERS: Provider[] = [
   {
@@ -144,6 +181,45 @@ const REFERENCE_PROVIDERS: Provider[] = [
   },
 ];
 
+const LINK_ONLY_PROVIDERS: Provider[] = [
+  {
+    id: "kayak",
+    name: "KAYAK",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.kayak.com/hotels",
+    logoUrl: null,
+    status: "active",
+  },
+  {
+    id: "momondo",
+    name: "momondo",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.momondo.com/hotels/",
+    logoUrl: null,
+    status: "active",
+  },
+  {
+    id: "wego",
+    name: "Wego",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.wego.com/hotels",
+    logoUrl: null,
+    status: "active",
+  },
+  {
+    id: "trivago",
+    name: "trivago",
+    type: "ota",
+    capability: "link_only",
+    baseUrl: "https://www.trivago.com/",
+    logoUrl: null,
+    status: "active",
+  },
+];
+
 const AUTOMATED_PROVIDER: Provider = {
   id: "amadeus",
   name: "Amadeus Live",
@@ -154,124 +230,49 @@ const AUTOMATED_PROVIDER: Provider = {
   status: "beta",
 };
 
-const FALLBACK_LINKS: Omit<ProviderLink, "url" | "linkKind">[] = [
-  {
-    providerId: "trip-com",
-    name: "Trip.com",
-    note: "媛숈? ?명뀛紐낃낵 ?좎쭨 議곌굔?쇰줈 ?ㅼ떆 ?뺤씤",
+const HOTEL_PROVIDER_REFERENCES: Record<string, HotelProviderReference> = {
+  hotel_phuket_marriott_merlin_beach: {
+    bookingPath: "/hotel/th/phuket-marriott-resort-and-spa-merlin-beach.html",
+    expediaPath: "Phuket-Hotels-Phuket-Marriott-Resort-Spa.h1594141.Hotel-Information",
+    expediaDestination: "Patong, Phuket Province, Thailand",
+    expediaRegionId: "6337833",
+    hotelsComPath:
+      "ho350330/pukes-melieoteu-lijoteu-seupa-meollin-bichi-patong-taegug/",
+    hotelsComDestination: "Patong, Phuket Province, Thailand",
+    hotelsComRegionId: "6337833",
+    hotelsComSelectedId: "1594141",
+    travelocityPath:
+      "Phuket-Hotels-Phuket-Marriott-Resort-Spa.h1594141.Hotel-Information",
+    travelocityDestination: "Phuket, Phuket Province, Thailand",
+    travelocityRegionId: "6046393",
+    stayforlongPath:
+      "/hotel/th/phuket-marriott-resort-spa-merlin-beach_patong",
+    tripCityEnName: "Phuket",
+    tripCityId: "725",
+    tripHotelId: "703198",
+    travelokaHotelId: "1000000350330",
+    travelokaHotelName: "Phuket Marriott Resort & Spa, Merlin Beach",
+    webjetArea: "Patong, Phuket Province, Thailand",
+    webjetAreaId: "306337833",
+    webjetFeaturedHotel:
+      "401594141-306337833-Patong, Phuket Province, Thailand",
+    webjetHotel: "Phuket Marriott Resort & Spa, Merlin Beach, Patong, TH",
+    webjetHotelId: "401594141",
+    interparkHotelCode: "1000038160",
+    almosaferPath:
+      "atg/phuket-marriott-resort-spa-merlin-beach-1052164",
+    smshoteldealsPropertyId: "11741",
+    smshoteldealsDestinationCode: "dXJuOm1ieHBsYzpUUWpk",
+    smshoteldealsSearchTerm: "phuket",
+    smshoteldealsStars: [5, 5],
+    hotelsugogoPropertyId: "11741",
+    hotelsugogoDestinationCode: "dXJuOm1ieHBsYzpUUWpk",
+    hotelsugogoSearchTerm: "phuket marr",
+    hotelsugogoStars: [5, 5],
   },
-  {
-    providerId: "kayak",
-    name: "KAYAK",
-    note: "媛숈? 寃??議곌굔?쇰줈 硫뷀??쒖튂 寃곌낵 ?뺤씤",
-  },
-  {
-    providerId: "momondo",
-    name: "momondo",
-    note: "媛숈? 寃??議곌굔?쇰줈 硫뷀??쒖튂 寃곌낵 ?뺤씤",
-  },
-  {
-    providerId: "wego",
-    name: "Wego",
-    note: "媛숈? 寃??議곌굔?쇰줈 硫뷀??쒖튂 寃곌낵 ?뺤씤",
-  },
-  {
-    providerId: "trivago",
-    name: "trivago",
-    note: "媛숈? 寃??議곌굔?쇰줈 硫뷀??쒖튂 寃곌낵 ?뺤씤",
-  },
-];
-
-type CuratedDeeplink = {
-  providerId: string;
-  name: string;
-  url: string;
 };
 
-type CuratedDeeplinkSet = {
-  hotelId: string;
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  children: number;
-  rooms: number;
-  links: CuratedDeeplink[];
-};
-
-const CURATED_DEEPLINK_SETS: CuratedDeeplinkSet[] = [
-  {
-    hotelId: "hotel_phuket_marriott_merlin_beach",
-    checkIn: "2026-05-05",
-    checkOut: "2026-05-07",
-    adults: 2,
-    children: 2,
-    rooms: 1,
-    links: [
-      {
-        providerId: "booking",
-        name: "Booking.com",
-        url: "https://www.booking.com/hotel/th/phuket-marriott-resort-and-spa-merlin-beach.html?aid=368687&checkin=2026-05-05&checkout=2026-05-07&no_rooms=1&group_adults=2&group_children=2&age=6&age=3&selected_currency=USD&show_room=4451138&lang=en-us&label=802145_S212bcb2cf41c5632cd72ac4be23c3f1c_1773395833746",
-      },
-      {
-        providerId: "expedia",
-        name: "Expedia",
-        url: "https://www.expedia.co.th/Phuket-Hotels-Phuket-Marriott-Resort-Spa.h1594141.Hotel-Information?affcid=US.DIRECT.PHG.1100l37627.0&affdtl=PHG.1110l33pHIPv.htlg_en&afflid=1110l33pHIPv&button_referral_source=other&chid=dcad9beb-6375-43e8-8c60-ae9f68385671&chkin=2026-05-05&chkout=2026-05-07&clickref=1110l33pHIPv&currency=THB&htlg_en=&locale=th_TH&mpa=59400.00&mpb=11108.00&mpd=JPY&mpe=1773395634&mpm=24&mpq=32670.00&my_ad=AFF.US.DIRECT.PHG.1100l37627.0&rateplanid=222158066&ref_id=1110l33pHIPv&regionId=6337833&rm1=a2%3Ac6%3Ac3&siteid=17&tpid=28",
-      },
-      {
-        providerId: "hotels-com",
-        name: "Hotels.com",
-        url: "https://kr.hotels.com/ho350330/pukes-melieoteu-lijoteu-seupa-meollin-bichi-patong-taegug/?chkin=2026-05-05&chkout=2026-05-07&x_pwa=1&rfrr=HSR&pwa_ts=1773399549432&referrerUrl=aHR0cHM6Ly9rci5ob3RlbHMuY29tL0hvdGVsLVNlYXJjaA%3D%3D&rffrid=aff.hcom.KR.038.000.1101l32628.kwrd%3D1110l33pPnH3&useRewards=false&rm1=a2%3Ac6%3Ac3&regionId=6337833&destination=%ED%8C%8C%ED%86%B5%2C+%ED%91%B8%EC%BC%93+%EC%A3%BC%2C+%ED%83%9C%EA%B5%AD&destType=MARKET&selected=1594141&latLong=7.896579%2C98.302097&mpo=HC&sort=RECOMMENDED&top_dp=6000&top_cur=THB&affcid=HCOM-KR.DIRECT.PHG.1101l32628&afflid=1110l33pPnH3&userIntent=&selectedRoomType=210306852&selectedRatePlan=222158066&expediaPropertyId=1594141&searchId=41371b86-31c4-4b9f-9602-90a7a7fd58c2",
-      },
-      {
-        providerId: "travelocity",
-        name: "Travelocity",
-        url: "https://www.travelocity.com/Phuket-Hotels-Phuket-Marriott-Resort-Spa.h1594141.Hotel-Information?chkin=2026-05-05&chkout=2026-05-07&x_pwa=1&rfrr=HSR&pwa_ts=1773395882335&referrerUrl=aHR0cHM6Ly93d3cudHJhdmVsb2NpdHkuY29tL0hvdGVsLVNlYXJjaA%3D%3D&useRewards=false&rm1=a2%3Ac6%3Ac3&regionId=6046393&destination=Phuket%2C+Phuket+Province%2C+Thailand&destType=MARKET&latLong=7.880443%2C98.392247&sort=RECOMMENDED&top_dp=443&top_cur=USD&userIntent=&selectedRoomType=210306852&selectedRatePlan=222158066&searchId=834efb85-cec8-4a58-918d-e3d2abc2477f",
-      },
-      {
-        providerId: "traveloka",
-        name: "Traveloka",
-        url: "https://www.traveloka.com/en-th/hotel/detail?spec=05-05-2026.07-05-2026.2.1.HOTEL.1000000350330.Phuket%20Marriott%20Resort%20%26%20Spa%2C%20Merlin%20Beach.2&loginPromo=1&prevSearchId=1859540457357336511&mToken=VptPd1N%2BKefTkOwJCrzayVHgpY14qKbb%2FSrBkbS3omnQP%2FfLqCG2zgz25fMPRSeFQp8xy8cT2mtTuFSNYKzfxA%3D%3D&metasearchRateId=desktop&priceDisplay=NIGHT&childSpec=6%2C3&multiRoomAlternativeOption=false&iuid=98eaa9a3-be3c-466e-9269-0040bc3fd9c4",
-      },
-      {
-        providerId: "stayforlong",
-        name: "Stayforlong",
-        url: "https://www.stayforlong.com/hotel/th/phuket-marriott-resort-spa-merlin-beach_patong?adults=2&checkIn=2026-05-05&checkOut=2026-05-07&checkin=2026-05-05&checkout=2026-05-07&children=6%2C3&lang=en&market=us&page=1&tid=01kkk9p0vpj48krpb9jp0t9vb1",
-      },
-      {
-        providerId: "trip-com",
-        name: "Trip.com",
-        url: "https://us.trip.com/hotels/detail/?cityEnName=Phuket&cityId=725&hotelId=703198&checkIn=2026-05-05&checkOut=2026-05-07&adult=2&children=2&crn=1&ages=6%2C3&curr=THB&barcurr=THB",
-      },
-      {
-        providerId: "webjet",
-        name: "Webjet",
-        url: "https://services.webjet.com.au/web/hotels/search/#/hotel?area=Patong%2C%20Phuket%20Province%2C%20Thailand&areaId=306337833&checkInDate=20260505&checkOutDate=20260507&childAge=6%2C3&featuredHotel=401594141-306337833-Patong%2C%20Phuket%20Province%2C%20Thailand&hotel=Phuket%20Marriott%20Resort%20%26%20Spa%2C%20Merlin%20Beach%2C%20Patong%2C%20TH&hotelid=401594141&numberOfBedroomsFilter=0&paxRequest=A2C2&sessionId=736c54cd-7fad-4504-b71f-0945615411b1&isExpandedProperty=false",
-      },
-      {
-        providerId: "interpark",
-        name: "Interpark",
-        url: "https://travel.interpark.com/hotel/goods?hotelCD=1000038160&iDT=2026.05.05&oDT=2026.05.07&sRinfo=2-6_3&guarantee=N&rateStatus=Y&breakfast=N&benefitInformation=N",
-      },
-      {
-        providerId: "almosafer",
-        name: "Almosafer",
-        url: "https://global.almosafer.com/en/hotel/details/atg/phuket-marriott-resort-spa-merlin-beach-1052164?checkin=05-05-2026&checkout=07-05-2026&rooms=2_adult%2C2_child%2C6-3_age&lang=en",
-      },
-      {
-        providerId: "smshoteldeals",
-        name: "SMSHotelDeals",
-        url: "https://smshoteldeals.com/property/11741?startDate=05-05-2026&endDate=07-05-2026&occupancies=%5B%7B%22Adults%22%3A2%2C%22Children%22%3A2%2C%22ChildrenAges%22%3A%5B6%2C3%5D%7D%5D&destinationCode=dXJuOm1ieHBsYzpUUWpk&searchTerm=phuket+&stars=%5B5%2C5%5D",
-      },
-      {
-        providerId: "hotelsugogo",
-        name: "HotelsuGoGo",
-        url: "https://hotelsugogo.com/property/11741?startDate=05-05-2026&endDate=07-05-2026&occupancies=%5B%7B%22Adults%22%3A2%2C%22Children%22%3A2%2C%22ChildrenAges%22%3A%5B6%2C3%5D%7D%5D&destinationCode=dXJuOm1ieHBsYzpUUWpk&searchTerm=phuket+marr&stars=%5B5%2C5%5D",
-      },
-    ],
-  },
-];
-
-const HOTEL_DETAIL_URLS: Record<string, Partial<Record<string, string>>> = {
+const STATIC_HOTEL_DETAIL_URLS: Record<string, Partial<Record<string, string>>> = {
   hotel_gh_seoul: {
     "trip-com":
       "https://www.trip.com/hotels/seoul-hotel-detail-988623/grand-hyatt-seoul/",
@@ -292,20 +293,33 @@ const HOTEL_DETAIL_URLS: Record<string, Partial<Record<string, string>>> = {
   },
 };
 
-function findCuratedDeeplinkSet(
-  ctx: SearchLinkContext
-): CuratedDeeplinkSet | undefined {
-  if (!ctx.hotelId) return undefined;
+function getHotelProviderReference(hotelId: string): HotelProviderReference | null {
+  return HOTEL_PROVIDER_REFERENCES[hotelId] ?? null;
+}
 
-  return CURATED_DEEPLINK_SETS.find(
-    (set) =>
-      set.hotelId === ctx.hotelId &&
-      set.checkIn === ctx.checkIn &&
-      set.checkOut === ctx.checkOut &&
-      set.adults === ctx.adults &&
-      set.children === ctx.children &&
-      set.rooms === ctx.rooms
-  );
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function formatDateDdMmYyyy(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return `${pad2(date.getDate())}-${pad2(date.getMonth() + 1)}-${date.getFullYear()}`;
+}
+
+function formatDateCompact(iso: string): string {
+  return iso.replaceAll("-", "");
+}
+
+function formatDateDots(iso: string): string {
+  return iso.replaceAll("-", ".");
+}
+
+function getStayLength(ctx: SearchLinkContext): number {
+  const start = new Date(ctx.checkIn);
+  const end = new Date(ctx.checkOut);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 0;
+  return Math.max(0, Math.round((end.getTime() - start.getTime()) / 86400000));
 }
 
 function buildKeyword(ctx: SearchLinkContext): string {
@@ -319,24 +333,79 @@ function buildKeyword(ctx: SearchLinkContext): string {
   return `${hotelName} ${destination}`;
 }
 
-function supportsConditionSearch(providerId: string): boolean {
-  return ["trip-com", "kayak", "momondo", "wego", "trivago"].includes(providerId);
+function getChildAges(ctx: SearchLinkContext): number[] {
+  return ctx.childAges.filter((age) => Number.isInteger(age) && age >= 0);
 }
 
-export function getProviderHotelDetailUrl(
-  hotelId: string,
-  providerId: string
-): string | null {
-  return HOTEL_DETAIL_URLS[hotelId]?.[providerId] ?? null;
+function hasRequiredChildAges(ctx: SearchLinkContext): boolean {
+  return ctx.children === 0 || getChildAges(ctx).length === ctx.children;
 }
 
-export function buildProviderSearchUrl(
+function getChildAgeCsv(ctx: SearchLinkContext): string {
+  return getChildAges(ctx).join(",");
+}
+
+function getChildAgeDash(ctx: SearchLinkContext): string {
+  return getChildAges(ctx).join("-");
+}
+
+function buildBookingRoomOccupancy(ctx: SearchLinkContext): string {
+  const adults = Array.from({ length: ctx.adults }, () => "A");
+  const children = getChildAges(ctx).map((age) => String(age));
+  return [...adults, ...children].join(",");
+}
+
+function buildExpediaRoomSpec(ctx: SearchLinkContext): string | null {
+  if (!hasRequiredChildAges(ctx)) return null;
+
+  const parts = [`a${ctx.adults}`];
+  for (const age of getChildAges(ctx)) {
+    parts.push(`c${age}`);
+  }
+
+  return parts.join(":");
+}
+
+function getLinkNote(linkKind: ProviderLinkKind, ctx: SearchLinkContext): string {
+  const base =
+    linkKind === "hotel_detail"
+      ? "호텔 상세 랜딩"
+      : linkKind === "condition_search"
+        ? "검색 결과 랜딩"
+        : "공급처 홈";
+
+  if (ctx.children > 0 && !hasRequiredChildAges(ctx)) {
+    return `${base} · 아동 나이는 이동 후 다시 입력할 수 있습니다.`;
+  }
+
+  return base;
+}
+
+function buildProviderConditionSearchUrl(
   providerId: string,
   ctx: SearchLinkContext
-): string {
+): string | null {
   const keyword = buildKeyword(ctx);
 
   switch (providerId) {
+    case "booking": {
+      const params = new URLSearchParams({
+        ss: keyword,
+        checkin: ctx.checkIn,
+        checkout: ctx.checkOut,
+        group_adults: String(ctx.adults),
+        no_rooms: String(ctx.rooms),
+      });
+
+      if (ctx.children > 0) {
+        params.set("group_children", String(ctx.children));
+        for (const age of getChildAges(ctx)) {
+          params.append("age", String(age));
+        }
+      }
+
+      return `https://www.booking.com/searchresults.html?${params.toString()}`;
+    }
     case "trip-com": {
       const params = new URLSearchParams({
         keyword,
@@ -346,6 +415,9 @@ export function buildProviderSearchUrl(
         children: String(ctx.children),
         crn: String(ctx.rooms),
       });
+      if (getChildAges(ctx).length > 0) {
+        params.set("ages", getChildAgeCsv(ctx));
+      }
       return `https://www.trip.com/hotels/list?${params.toString()}`;
     }
     case "kayak": {
@@ -380,7 +452,6 @@ export function buildProviderSearchUrl(
     }
     case "trivago": {
       const params = new URLSearchParams({
-        themeId: "1",
         checkin: ctx.checkIn,
         checkout: ctx.checkOut,
         adults: String(ctx.adults),
@@ -390,8 +461,314 @@ export function buildProviderSearchUrl(
       return `https://www.trivago.com/?${params.toString()}`;
     }
     default:
-      return getProviderById(providerId)?.baseUrl ?? "#";
+      return null;
   }
+}
+
+function buildProviderDetailUrl(
+  providerId: string,
+  hotel: Hotel,
+  ctx: SearchLinkContext
+): string | null {
+  const ref = getHotelProviderReference(hotel.id);
+  if (!ref) return null;
+
+  switch (providerId) {
+    case "booking": {
+      if (!ref.bookingPath) return null;
+      const params = new URLSearchParams({
+        checkin: ctx.checkIn,
+        checkout: ctx.checkOut,
+        no_rooms: String(ctx.rooms),
+        group_adults: String(ctx.adults),
+      });
+
+      if (ctx.children > 0) {
+        params.set("group_children", String(ctx.children));
+        for (const age of getChildAges(ctx)) {
+          params.append("age", String(age));
+        }
+        if (hasRequiredChildAges(ctx)) {
+          params.set("room1", buildBookingRoomOccupancy(ctx));
+        }
+      }
+
+      return `https://www.booking.com${ref.bookingPath}?${params.toString()}`;
+    }
+
+    case "expedia": {
+      const roomSpec = buildExpediaRoomSpec(ctx);
+      if (!ref.expediaPath || !ref.expediaDestination || !ref.expediaRegionId) {
+        return null;
+      }
+      if (ctx.children > 0 && !roomSpec) return null;
+
+      const params = new URLSearchParams({
+        chkin: ctx.checkIn,
+        chkout: ctx.checkOut,
+        regionId: ref.expediaRegionId,
+        destination: ref.expediaDestination,
+        destType: "MARKET",
+        rm1: roomSpec ?? `a${ctx.adults}`,
+      });
+
+      return `https://www.expedia.com/${ref.expediaPath}?${params.toString()}`;
+    }
+
+    case "hotels-com": {
+      const roomSpec = buildExpediaRoomSpec(ctx);
+      if (
+        !ref.hotelsComPath ||
+        !ref.hotelsComDestination ||
+        !ref.hotelsComRegionId ||
+        !ref.hotelsComSelectedId
+      ) {
+        return null;
+      }
+      if (ctx.children > 0 && !roomSpec) return null;
+
+      const params = new URLSearchParams({
+        chkin: ctx.checkIn,
+        chkout: ctx.checkOut,
+        regionId: ref.hotelsComRegionId,
+        destination: ref.hotelsComDestination,
+        selected: ref.hotelsComSelectedId,
+        rm1: roomSpec ?? `a${ctx.adults}`,
+      });
+
+      return `https://www.hotels.com/${ref.hotelsComPath}?${params.toString()}`;
+    }
+
+    case "travelocity": {
+      const roomSpec = buildExpediaRoomSpec(ctx);
+      if (
+        !ref.travelocityPath ||
+        !ref.travelocityDestination ||
+        !ref.travelocityRegionId
+      ) {
+        return null;
+      }
+      if (ctx.children > 0 && !roomSpec) return null;
+
+      const params = new URLSearchParams({
+        chkin: ctx.checkIn,
+        chkout: ctx.checkOut,
+        regionId: ref.travelocityRegionId,
+        destination: ref.travelocityDestination,
+        destType: "MARKET",
+        rm1: roomSpec ?? `a${ctx.adults}`,
+      });
+
+      return `https://www.travelocity.com/${ref.travelocityPath}?${params.toString()}`;
+    }
+
+    case "stayforlong": {
+      if (!ref.stayforlongPath) return null;
+      if (ctx.children > 0 && !hasRequiredChildAges(ctx)) return null;
+
+      const params = new URLSearchParams({
+        adults: String(ctx.adults),
+        checkIn: ctx.checkIn,
+        checkOut: ctx.checkOut,
+        lang: "en",
+        market: "us",
+        page: "1",
+      });
+
+      if (ctx.children > 0) {
+        params.set("children", getChildAgeCsv(ctx));
+      }
+
+      return `https://www.stayforlong.com${ref.stayforlongPath}?${params.toString()}`;
+    }
+
+    case "trip-com": {
+      if (!ref.tripCityEnName || !ref.tripCityId || !ref.tripHotelId) return null;
+
+      const params = new URLSearchParams({
+        cityEnName: ref.tripCityEnName,
+        cityId: ref.tripCityId,
+        hotelId: ref.tripHotelId,
+        checkIn: ctx.checkIn,
+        checkOut: ctx.checkOut,
+        adult: String(ctx.adults),
+        children: String(ctx.children),
+        crn: String(ctx.rooms),
+      });
+
+      if (getChildAges(ctx).length > 0) {
+        params.set("ages", getChildAgeCsv(ctx));
+      }
+
+      return `https://us.trip.com/hotels/detail/?${params.toString()}`;
+    }
+
+    case "traveloka": {
+      if (!ref.travelokaHotelId || !ref.travelokaHotelName) return null;
+      if (ctx.children > 0 && !hasRequiredChildAges(ctx)) return null;
+
+      const spec = [
+        formatDateDdMmYyyy(ctx.checkIn),
+        formatDateDdMmYyyy(ctx.checkOut),
+        String(ctx.adults),
+        String(ctx.rooms),
+        "HOTEL",
+        ref.travelokaHotelId,
+        ref.travelokaHotelName,
+        String(ctx.children),
+      ].join(".");
+
+      const params = new URLSearchParams({ spec });
+      if (ctx.children > 0) {
+        params.set("childSpec", getChildAgeCsv(ctx));
+      }
+
+      return `https://www.traveloka.com/en-th/hotel/detail?${params.toString()}`;
+    }
+
+    case "webjet": {
+      if (
+        !ref.webjetArea ||
+        !ref.webjetAreaId ||
+        !ref.webjetFeaturedHotel ||
+        !ref.webjetHotel ||
+        !ref.webjetHotelId
+      ) {
+        return null;
+      }
+
+      const params = new URLSearchParams({
+        area: ref.webjetArea,
+        areaId: ref.webjetAreaId,
+        checkInDate: formatDateCompact(ctx.checkIn),
+        checkOutDate: formatDateCompact(ctx.checkOut),
+        featuredHotel: ref.webjetFeaturedHotel,
+        hotel: ref.webjetHotel,
+        hotelid: ref.webjetHotelId,
+        numberOfBedroomsFilter: "0",
+        paxRequest: `A${ctx.adults}C${ctx.children}`,
+        isExpandedProperty: "false",
+      });
+
+      if (getChildAges(ctx).length > 0) {
+        params.set("childAge", getChildAgeCsv(ctx));
+      }
+
+      return `https://services.webjet.com.au/web/hotels/search/#/hotel?${params.toString()}`;
+    }
+
+    case "interpark": {
+      if (!ref.interparkHotelCode) return null;
+      if (ctx.children > 0 && !hasRequiredChildAges(ctx)) return null;
+
+      const params = new URLSearchParams({
+        hotelCD: ref.interparkHotelCode,
+        iDT: formatDateDots(ctx.checkIn),
+        oDT: formatDateDots(ctx.checkOut),
+      });
+
+      if (ctx.children > 0) {
+        params.set("sRinfo", `${ctx.adults}-${getChildAges(ctx).join("_")}`);
+      } else {
+        params.set("sRinfo", String(ctx.adults));
+      }
+
+      return `https://travel.interpark.com/hotel/goods?${params.toString()}`;
+    }
+
+    case "almosafer": {
+      if (!ref.almosaferPath) return null;
+      if (ctx.children > 0 && !hasRequiredChildAges(ctx)) return null;
+
+      const roomParts = [`${ctx.adults}_adult`];
+      if (ctx.children > 0) {
+        roomParts.push(`${ctx.children}_child`);
+        roomParts.push(`${getChildAgeDash(ctx)}_age`);
+      }
+
+      const params = new URLSearchParams({
+        checkin: formatDateDdMmYyyy(ctx.checkIn),
+        checkout: formatDateDdMmYyyy(ctx.checkOut),
+        rooms: roomParts.join(","),
+        lang: "en",
+      });
+
+      return `https://global.almosafer.com/en/hotel/details/${ref.almosaferPath}?${params.toString()}`;
+    }
+
+    case "smshoteldeals": {
+      if (!ref.smshoteldealsPropertyId || !ref.smshoteldealsDestinationCode) {
+        return null;
+      }
+
+      const occupancies = JSON.stringify([
+        {
+          Adults: ctx.adults,
+          Children: ctx.children,
+          ChildrenAges: getChildAges(ctx),
+        },
+      ]);
+
+      const params = new URLSearchParams({
+        startDate: formatDateDdMmYyyy(ctx.checkIn),
+        endDate: formatDateDdMmYyyy(ctx.checkOut),
+        occupancies,
+        destinationCode: ref.smshoteldealsDestinationCode,
+        searchTerm: ref.smshoteldealsSearchTerm ?? buildKeyword(ctx),
+      });
+
+      if (ref.smshoteldealsStars) {
+        params.set("stars", JSON.stringify(ref.smshoteldealsStars));
+      }
+
+      return `https://smshoteldeals.com/property/${ref.smshoteldealsPropertyId}?${params.toString()}`;
+    }
+
+    case "hotelsugogo": {
+      if (!ref.hotelsugogoPropertyId || !ref.hotelsugogoDestinationCode) {
+        return null;
+      }
+
+      const occupancies = JSON.stringify([
+        {
+          Adults: ctx.adults,
+          Children: ctx.children,
+          ChildrenAges: getChildAges(ctx),
+        },
+      ]);
+
+      const params = new URLSearchParams({
+        startDate: formatDateDdMmYyyy(ctx.checkIn),
+        endDate: formatDateDdMmYyyy(ctx.checkOut),
+        occupancies,
+        destinationCode: ref.hotelsugogoDestinationCode,
+        searchTerm: ref.hotelsugogoSearchTerm ?? buildKeyword(ctx),
+      });
+
+      if (ref.hotelsugogoStars) {
+        params.set("stars", JSON.stringify(ref.hotelsugogoStars));
+      }
+
+      return `https://hotelsugogo.com/property/${ref.hotelsugogoPropertyId}?${params.toString()}`;
+    }
+
+    default:
+      return null;
+  }
+}
+
+export function getProviderHotelDetailUrl(
+  hotelId: string,
+  providerId: string
+): string | null {
+  return STATIC_HOTEL_DETAIL_URLS[hotelId]?.[providerId] ?? null;
+}
+
+export function buildProviderSearchUrl(
+  providerId: string,
+  ctx: SearchLinkContext
+): string {
+  return buildProviderConditionSearchUrl(providerId, ctx) ?? getProviderById(providerId)?.baseUrl ?? "#";
 }
 
 export function buildProviderOutboundLink(
@@ -399,31 +776,33 @@ export function buildProviderOutboundLink(
   hotel: Hotel,
   ctx: SearchLinkContext
 ): ProviderOutboundLink {
-  const curatedSet = findCuratedDeeplinkSet({ ...ctx, hotelId: hotel.id });
-  const curatedLink = curatedSet?.links.find((link) => link.providerId === providerId);
-  if (curatedLink) {
+  const detailUrl = buildProviderDetailUrl(providerId, hotel, ctx);
+  if (detailUrl) {
     return {
-      url: curatedLink.url,
+      url: detailUrl,
       linkKind: "hotel_detail",
-      hotelDetailUrl: curatedLink.url,
+      hotelDetailUrl: detailUrl,
+      note: getLinkNote("hotel_detail", ctx),
     };
   }
 
-  const hotelDetailUrl = getProviderHotelDetailUrl(hotel.id, providerId);
-
-  if (supportsConditionSearch(providerId)) {
+  const searchUrl = buildProviderConditionSearchUrl(providerId, ctx);
+  if (searchUrl) {
     return {
-      url: buildProviderSearchUrl(providerId, ctx),
+      url: searchUrl,
       linkKind: "condition_search",
-      hotelDetailUrl,
+      hotelDetailUrl: getProviderHotelDetailUrl(hotel.id, providerId),
+      note: getLinkNote("condition_search", ctx),
     };
   }
 
-  if (hotelDetailUrl) {
+  const staticDetailUrl = getProviderHotelDetailUrl(hotel.id, providerId);
+  if (staticDetailUrl) {
     return {
-      url: hotelDetailUrl,
+      url: staticDetailUrl,
       linkKind: "hotel_detail",
-      hotelDetailUrl,
+      hotelDetailUrl: staticDetailUrl,
+      note: "호텔 상세 랜딩",
     };
   }
 
@@ -431,6 +810,7 @@ export function buildProviderOutboundLink(
     url: getProviderById(providerId)?.baseUrl ?? "#",
     linkKind: "provider_home",
     hotelDetailUrl: null,
+    note: null,
   };
 }
 
@@ -443,32 +823,43 @@ export function getReferenceProviders(): Provider[] {
 }
 
 export function getProviders(): Provider[] {
-  return [...getAutomatedProviders(), ...getReferenceProviders()];
+  return [...getAutomatedProviders(), ...REFERENCE_PROVIDERS, ...LINK_ONLY_PROVIDERS];
 }
 
 export function getProviderById(id: string): Provider | undefined {
-  return [...REFERENCE_PROVIDERS, AUTOMATED_PROVIDER].find(
+  return [...REFERENCE_PROVIDERS, ...LINK_ONLY_PROVIDERS, AUTOMATED_PROVIDER].find(
     (provider) => provider.id === id
   );
 }
 
 export function getFallbackLinks(
+  hotel: Hotel | null,
   context?: SearchLinkContext | null
 ): ProviderLink[] {
-  const curatedSet = context ? findCuratedDeeplinkSet(context) : undefined;
-  if (curatedSet) {
-    return curatedSet.links.map((link) => ({
-      providerId: link.providerId,
-      name: link.name,
-      url: link.url,
-      linkKind: "hotel_detail",
-      note: "Verified deep link for this itinerary.",
-    }));
+  if (!hotel || !context) return [];
+
+  const providerIds = [
+    ...REFERENCE_PROVIDERS.map((provider) => provider.id),
+    ...LINK_ONLY_PROVIDERS.map((provider) => provider.id),
+  ];
+
+  const links: ProviderLink[] = [];
+
+  for (const providerId of providerIds) {
+    const provider = getProviderById(providerId);
+    if (!provider) continue;
+
+    const outbound = buildProviderOutboundLink(providerId, hotel, context);
+    if (outbound.linkKind === "provider_home" || outbound.url === "#") continue;
+
+    links.push({
+      providerId,
+      name: provider.name,
+      url: outbound.url,
+      linkKind: outbound.linkKind,
+      note: outbound.note ?? null,
+    });
   }
 
-  return FALLBACK_LINKS.map((link) => ({
-    ...link,
-    url: context ? buildProviderSearchUrl(link.providerId, context) : "#",
-    linkKind: context ? "condition_search" : "provider_home",
-  }));
+  return links;
 }

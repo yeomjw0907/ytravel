@@ -57,6 +57,43 @@ function getParamBoolean(
   return fallback;
 }
 
+function getParamChildAges(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string
+): number[] {
+  return getParam(searchParams, key, "")
+    .split(",")
+    .map((part) => Number(part.trim()))
+    .filter((age) => Number.isInteger(age) && age >= 0);
+}
+
+function formatSearchSummary(
+  checkIn: string,
+  checkOut: string,
+  adults: number,
+  children: number,
+  childAges: number[],
+  rooms: number,
+  roomName: string
+): string {
+  const guestParts = [`성인 ${adults}명`];
+  if (children > 0) {
+    const ageText = childAges.length > 0 ? ` (${childAges.join(", ")}세)` : "";
+    guestParts.push(`아동 ${children}명${ageText}`);
+  }
+  guestParts.push(`객실 ${rooms}개`);
+
+  return `${formatDateRange(checkIn, checkOut)} · ${guestParts.join(" · ")} · ${
+    roomName.trim() || "객실명 미입력"
+  }`;
+}
+
+function getLinkKindBadge(kind: string): string {
+  if (kind === "hotel_detail") return "호텔 상세";
+  if (kind === "condition_search") return "검색 랜딩";
+  return "외부 링크";
+}
+
 export default async function HotelDetailPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
@@ -76,6 +113,7 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
         checkOut: tomorrowISO(),
         adults: 2,
         children: 0,
+        childAges: [],
         rooms: 1,
         currency: "KRW",
         locale: "ko-KR",
@@ -96,6 +134,7 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
     checkOut: getParam(sp, "checkOut", DEFAULT_CHECK_OUT),
     adults: getParamNum(sp, "adults", 2),
     children: getParamNum(sp, "children", 0),
+    childAges: getParamChildAges(sp, "childAges"),
     rooms: getParamNum(sp, "rooms", 1),
     currency: getParam(sp, "currency", "KRW"),
     locale: getParam(sp, "locale", "ko-KR"),
@@ -128,11 +167,15 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
   const collectedAt = result.offers[0]
     ? formatCollectedAt(result.offers[0].collectedAt)
     : undefined;
-
-  const searchSummary =
-    `${formatDateRange(result.query.checkIn, result.query.checkOut)} · ` +
-    `성인 ${result.query.adults}명 · 객실 ${result.query.rooms}개 · ` +
-    (result.query.roomName?.trim() || "객실명 미입력");
+  const searchSummary = formatSearchSummary(
+    result.query.checkIn,
+    result.query.checkOut,
+    result.query.adults,
+    result.query.children,
+    result.query.childAges,
+    result.query.rooms,
+    result.query.roomName
+  );
 
   return (
     <div className="min-h-screen bg-wt-bg">
@@ -158,7 +201,7 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
             href={`/search?${toSearchQueryString(result.query)}`}
             className="ml-auto rounded-wt-sm text-wt-body-sm font-medium text-wt-brand-700 hover:underline focus-wt"
           >
-            결과로 돌아가기
+            검색 결과로 돌아가기
           </Link>
         </div>
 
@@ -168,8 +211,8 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
               이 상세 화면은 참고 후보 모드입니다
             </p>
             <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-              현재는 공급처별 실시간 확정가 대신 외부 사이트에서 다시 확인할 수 있는
-              참고 후보를 보여주고 있습니다.
+              현재는 공급처별 실시간 확정가 대신, 외부 사이트에서 다시 확인할 수 있는
+              참고 후보와 딥링크를 보여주고 있습니다.
             </p>
           </section>
         )}
@@ -191,8 +234,8 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
               공급처별 상세
             </h2>
             <p className="mt-wt-1 text-wt-body-sm text-wt-text-secondary">
-              공급처별 후보 가격과 조건을 확인한 뒤, 외부 사이트에서 같은 조건으로 다시
-              확인해 주세요.
+              공급처별 가격과 조건을 확인한 뒤, 바로 딥링크로 이동해 같은 조건을 다시
+              확인할 수 있습니다.
             </p>
             <div className="mt-wt-4 grid gap-wt-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.providers.map((provider) => (
@@ -216,13 +259,13 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
         {result.fallbackLinks.length > 0 && (
           <section className="mt-wt-8 rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:mt-wt-10 md:p-wt-8">
             <h2 className="font-display text-wt-h3 text-wt-text-primary">
-              Verified Deep Links
+              생성된 딥링크 목록
             </h2>
             <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-              Open the provider page with the selected hotel and itinerary already
-              applied when a verified link is available for this exact search.
+              분석한 URL 규칙을 기반으로 현재 검색 조건에 맞는 딥링크를 생성했습니다.
+              공급처별로 호텔 상세 또는 검색 랜딩 여부를 함께 표시합니다.
             </p>
-            <div className="mt-wt-4 flex flex-wrap gap-wt-2 sm:gap-wt-3">
+            <div className="mt-wt-5 grid gap-wt-3 md:grid-cols-2">
               {result.fallbackLinks.map((link) => (
                 <a
                   key={link.providerId}
@@ -230,12 +273,25 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-track="external_link_click"
-                  data-track-location="hotel_detail_verified_links"
+                  data-track-location="hotel_detail_generated_deep_links"
                   data-track-provider={link.providerId}
                   data-track-url={link.url}
-                  className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-wt-brand-700 transition-colors hover:bg-wt-info-bg focus-wt"
+                  className="rounded-wt-lg border border-wt-border bg-wt-surface px-wt-4 py-wt-4 transition-colors hover:border-wt-brand-300 hover:bg-wt-info-bg/40 focus-wt"
                 >
-                  {link.name}
+                  <div className="flex flex-wrap items-center gap-wt-2">
+                    <span className="font-medium text-wt-text-primary">{link.name}</span>
+                    <span className="inline-flex rounded-full bg-wt-info-bg px-wt-2 py-0.5 text-wt-caption text-wt-info-text">
+                      {getLinkKindBadge(link.linkKind)}
+                    </span>
+                  </div>
+                  {link.note && (
+                    <p className="mt-wt-2 text-wt-caption leading-relaxed text-wt-text-secondary">
+                      {link.note}
+                    </p>
+                  )}
+                  <p className="mt-wt-2 break-all text-wt-body-sm text-wt-text-secondary">
+                    {link.url}
+                  </p>
                 </a>
               ))}
             </div>
@@ -262,7 +318,7 @@ export default async function HotelDetailPage({ params, searchParams }: Props) {
             href={`/search?${toSearchQueryString(result.query)}`}
             className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-5 text-wt-body-sm font-medium text-wt-brand-700 transition-colors hover:bg-wt-info-bg focus-wt"
           >
-            결과로 돌아가기
+            검색 결과로 돌아가기
           </Link>
           <Link
             href="/"

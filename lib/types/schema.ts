@@ -10,6 +10,7 @@ export interface SearchQuery {
   checkOut: string;
   adults: number;
   children: number;
+  childAges: number[];
   rooms: number;
   currency: string;
   locale: string;
@@ -37,6 +38,10 @@ export interface Hotel {
 export type ProviderType = "official" | "ota";
 export type ProviderStatus = "active" | "beta" | "disabled";
 export type ProviderCapability = "automated" | "reference" | "link_only";
+export type ProviderLinkKind =
+  | "condition_search"
+  | "hotel_detail"
+  | "provider_home";
 
 export interface Provider {
   id: string;
@@ -84,6 +89,8 @@ export interface RateOffer {
   providerId: string;
   providerType: ProviderType;
   deeplink: string;
+  linkKind: ProviderLinkKind;
+  hotelDetailUrl: string | null;
   currency: string;
   basePrice: number;
   taxAmount: number | null;
@@ -143,6 +150,7 @@ export interface ProviderLink {
   providerId: string;
   name: string;
   url: string;
+  linkKind: ProviderLinkKind;
   note: string | null;
 }
 

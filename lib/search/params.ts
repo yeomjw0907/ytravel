@@ -36,6 +36,15 @@ function getNumber(
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function getChildAges(value: string): number[] {
+  if (!value.trim()) return [];
+
+  return value
+    .split(",")
+    .map((part) => Number(part.trim()))
+    .filter((age) => Number.isInteger(age) && age >= 0);
+}
+
 function getBoardType(value: string): BoardType {
   if (value === "room_only") return "room_only";
   if (value === "breakfast_included") return "breakfast_included";
@@ -72,6 +81,7 @@ export function searchParamsToQuery(
   const roomName = getString(params, "roomName").trim() || "";
   const adults = getNumber(params, "adults", 2);
   const children = getNumber(params, "children", 0);
+  const childAges = getChildAges(getString(params, "childAges"));
   const rooms = getNumber(params, "rooms", 1);
   const userBookedPrice = getNumber(params, "userBookedPrice", 0);
   const currency = getString(params, "currency") || "KRW";
@@ -130,11 +140,27 @@ export function searchParamsToQuery(
     };
   }
 
+  if (!Number.isInteger(children) || children < 0) {
+    return {
+      ok: false,
+      reason: "invalid_numbers",
+      message: "아동 인원은 0명 이상이어야 합니다.",
+    };
+  }
+
   if (!Number.isInteger(rooms) || rooms < 1) {
     return {
       ok: false,
       reason: "invalid_numbers",
-      message: "객실 수는 1실 이상이어야 합니다.",
+      message: "객실 수는 1개 이상이어야 합니다.",
+    };
+  }
+
+  if (childAges.length > 0 && childAges.length !== children) {
+    return {
+      ok: false,
+      reason: "invalid_numbers",
+      message: "아동 인원과 나이 개수를 맞춰 주세요.",
     };
   }
 
@@ -155,6 +181,7 @@ export function searchParamsToQuery(
       checkOut,
       adults,
       children,
+      childAges,
       rooms,
       currency,
       locale,

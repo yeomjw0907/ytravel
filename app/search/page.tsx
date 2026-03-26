@@ -16,6 +16,12 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
+function getLinkKindBadge(kind: string): string {
+  if (kind === "hotel_detail") return "호텔 상세";
+  if (kind === "condition_search") return "검색 랜딩";
+  return "외부 링크";
+}
+
 export default async function SearchPage({ searchParams }: Props) {
   const params = await searchParams;
   const paramsResult = searchParamsToQuery(params);
@@ -23,10 +29,7 @@ export default async function SearchPage({ searchParams }: Props) {
   if (!paramsResult.ok) {
     return (
       <>
-        <PageAnalytics
-          event="no_result"
-          properties={{ reason: paramsResult.reason }}
-        />
+        <PageAnalytics event="no_result" properties={{ reason: paramsResult.reason }} />
         <EmptyState
           title="검색 조건을 다시 확인해 주세요"
           description={paramsResult.message}
@@ -44,7 +47,7 @@ export default async function SearchPage({ searchParams }: Props) {
         <PageAnalytics event="no_result" properties={{ reason: "hotel_not_found" }} />
         <EmptyState
           title="호텔을 찾지 못했습니다"
-          description="호텔명을 다시 입력하거나 영문 호텔명을 함께 적어 다시 검색해 주세요."
+          description="호텔명을 다시 입력하거나 영문 호텔명으로 검색해 주세요."
           showSearchLink
         />
       </>
@@ -68,9 +71,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const hasCandidate =
     result.brgEvaluation?.comparisonOfferId != null &&
     (result.brgEvaluation.priceGap ?? 0) > 0;
-  const hasVerifiedDeepLinks = result.fallbackLinks.some(
-    (link) => link.note === "Verified deep link for this itinerary."
-  );
+  const landingLinkCount = result.fallbackLinks.length;
 
   return (
     <div className="min-h-screen bg-wt-bg">
@@ -81,7 +82,7 @@ export default async function SearchPage({ searchParams }: Props) {
           offer_count: result.offers.length,
           provider_count: result.providers.length,
           data_mode: result.offerDataMode,
-          verified_link_set: hasVerifiedDeepLinks,
+          deep_link_count: landingLinkCount,
         }}
       />
       {hasCandidate && (
@@ -118,7 +119,7 @@ export default async function SearchPage({ searchParams }: Props) {
               이번 검색은 참고 후보 모드입니다
             </p>
             <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-              현재는 실시간 확정가 대신 같은 조건으로 다시 확인할 수 있는 공급처 기준
+              현재는 실시간 확정가 대신 같은 조건으로 다시 이동할 수 있는 딥링크와
               참고 후보를 보여주고 있습니다. 가격과 조건은 외부 사이트에서 최종 확인해
               주세요.
             </p>
@@ -165,12 +166,12 @@ export default async function SearchPage({ searchParams }: Props) {
             <div className="flex flex-col gap-wt-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="font-display text-wt-h3 text-wt-text-primary">
-                  {hasReferenceMode ? "공급처별 참고 후보" : "자동 확인된 공급처 비교"}
+                  {hasReferenceMode ? "공급처별 참고 후보" : "자동 확인 공급처 비교"}
                 </h2>
                 <p className="mt-wt-1 text-wt-body-sm leading-relaxed text-wt-text-secondary">
                   {hasReferenceMode
-                    ? "외부 사이트로 이동하기 전 어떤 공급처가 더 유력해 보이는지 빠르게 확인하는 영역입니다."
-                    : "자동으로 확인된 공급처 기준의 비교 결과입니다. 수집 시점 이후 가격은 달라질 수 있습니다."}
+                    ? "딥링크로 다시 이동하기 전에 어떤 공급처가 유력한지 빠르게 확인하는 영역입니다."
+                    : "자동으로 확인된 공급처 기준 비교 결과입니다. 수집 시점 이후 가격은 달라질 수 있습니다."}
                 </p>
               </div>
               <p className="text-wt-caption leading-relaxed text-wt-text-secondary">
@@ -198,36 +199,55 @@ export default async function SearchPage({ searchParams }: Props) {
           </section>
         )}
 
-        <section className="mt-wt-8 rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:mt-wt-10 md:p-wt-8">
-          <h2 className="font-display text-wt-h3 text-wt-text-primary">
-            직접 다시 확인할 사이트
-          </h2>
-          <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
-            아래 링크는 가능한 범위에서 같은 호텔명, 같은 날짜, 같은 인원 조건으로
-            검색 결과 페이지에 이동합니다.
-          </p>
-          <p className="mt-wt-1 text-wt-caption leading-relaxed text-wt-text-secondary">
-            일부 공급처는 최종 상세 페이지 대신 검색 결과 목록으로 이동할 수 있습니다.
-            이동 후 조건이 유지되는지 한 번 더 확인해 주세요.
-          </p>
-          <div className="mt-wt-4 flex flex-wrap gap-wt-2 sm:gap-wt-3">
-            {result.fallbackLinks.map((link) => (
-              <a
-                key={link.providerId}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-track="external_link_click"
-                data-track-location="fallback_links"
-                data-track-provider={link.providerId}
-                data-track-url={link.url}
-                className="inline-flex h-11 items-center justify-center rounded-wt-md border-2 border-wt-brand-700 px-wt-4 text-wt-body-sm font-medium text-wt-brand-700 transition-colors hover:bg-wt-info-bg focus-wt"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
-        </section>
+        {result.fallbackLinks.length > 0 && (
+          <section className="mt-wt-8 rounded-wt-xl border border-wt-border bg-wt-panel p-wt-6 shadow-wt-card md:mt-wt-10 md:p-wt-8">
+            <div className="flex flex-col gap-wt-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="font-display text-wt-h3 text-wt-text-primary">
+                  생성된 딥링크 목록
+                </h2>
+                <p className="mt-wt-2 text-wt-body-sm leading-relaxed text-wt-text-secondary">
+                  분석한 URL 패턴을 바탕으로 현재 검색 조건에 맞는 딥링크를 생성했습니다.
+                  호텔 상세로 바로 랜딩되는 링크와 검색 결과로 랜딩되는 링크를 함께
+                  보여줍니다.
+                </p>
+              </div>
+              <span className="inline-flex h-8 items-center rounded-full bg-wt-info-bg px-wt-3 text-wt-caption font-medium text-wt-info-text">
+                {landingLinkCount} links
+              </span>
+            </div>
+            <div className="mt-wt-5 grid gap-wt-3 md:grid-cols-2">
+              {result.fallbackLinks.map((link) => (
+                <a
+                  key={link.providerId}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track="external_link_click"
+                  data-track-location="generated_deep_links"
+                  data-track-provider={link.providerId}
+                  data-track-url={link.url}
+                  className="rounded-wt-lg border border-wt-border bg-wt-surface px-wt-4 py-wt-4 transition-colors hover:border-wt-brand-300 hover:bg-wt-info-bg/40 focus-wt"
+                >
+                  <div className="flex flex-wrap items-center gap-wt-2">
+                    <span className="font-medium text-wt-text-primary">{link.name}</span>
+                    <span className="inline-flex rounded-full bg-wt-info-bg px-wt-2 py-0.5 text-wt-caption text-wt-info-text">
+                      {getLinkKindBadge(link.linkKind)}
+                    </span>
+                  </div>
+                  {link.note && (
+                    <p className="mt-wt-2 text-wt-caption leading-relaxed text-wt-text-secondary">
+                      {link.note}
+                    </p>
+                  )}
+                  <p className="mt-wt-2 break-all text-wt-body-sm text-wt-text-secondary">
+                    {link.url}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="mt-wt-8 rounded-wt-lg border border-wt-border bg-wt-surface p-wt-4 md:mt-wt-10">
           <p className="text-wt-body-sm leading-relaxed text-wt-text-secondary">

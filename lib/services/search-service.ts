@@ -53,6 +53,7 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
     checkOut: query.checkOut,
     adults: query.adults,
     children: query.children,
+    childAges: query.childAges,
     rooms: query.rooms,
     locale: query.locale,
   };
@@ -64,7 +65,7 @@ export async function search(query: SearchQuery): Promise<SearchResult> {
     offers: offerCollection.offers,
     fetchStatuses: offerCollection.fetchStatuses,
     brgEvaluation,
-    fallbackLinks: getFallbackLinks(fallbackContext),
+    fallbackLinks: getFallbackLinks(hotel, fallbackContext),
     generatedAt: now,
     offerDataMode: offerCollection.dataMode,
   };

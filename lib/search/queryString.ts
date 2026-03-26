@@ -7,6 +7,9 @@ export function toSearchQueryString(query: SearchQuery): string {
   params.set("checkOut", query.checkOut);
   params.set("adults", String(query.adults));
   params.set("children", String(query.children));
+  if (query.childAges.length > 0) {
+    params.set("childAges", query.childAges.join(","));
+  }
   params.set("rooms", String(query.rooms));
   params.set("currency", query.currency);
   params.set("locale", query.locale);

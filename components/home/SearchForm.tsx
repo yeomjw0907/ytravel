@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Button, Input, Select } from "@/components/ui";
 import { trackEvent } from "@/lib/analytics/client";
 import { DateRangeField } from "./DateRangeField";
@@ -10,6 +10,14 @@ function formatWithComma(value: string): string {
   const digits = value.replace(/\D/g, "");
   if (digits === "") return "";
   return Number(digits).toLocaleString("ko-KR");
+}
+
+function normalizeChildAges(value: string): string {
+  return value
+    .split(",")
+    .map((part) => part.replace(/\D/g, "").trim())
+    .filter(Boolean)
+    .join(",");
 }
 
 function UserBookedPriceInput() {
@@ -55,6 +63,11 @@ const ADULT_OPTIONS = Array.from({ length: 6 }, (_, i) => ({
   label: `${i + 1}`,
 }));
 
+const CHILD_OPTIONS = Array.from({ length: 5 }, (_, i) => ({
+  value: String(i),
+  label: `${i}`,
+}));
+
 const ROOM_OPTIONS = Array.from({ length: 3 }, (_, i) => ({
   value: String(i + 1),
   label: `${i + 1}`,
@@ -88,12 +101,20 @@ const TAX_OPTIONS = [
 
 const PAYMENT_OPTIONS = [
   { value: "pay_now", label: "즉시 결제" },
-  { value: "pay_later", label: "후결제" },
+  { value: "pay_later", label: "나중 결제" },
   { value: "pay_at_hotel", label: "현장 결제" },
   { value: "unknown", label: "모름" },
 ];
 
 export function SearchForm() {
+  const [children, setChildren] = useState("0");
+  const [childAgeInput, setChildAgeInput] = useState("");
+  const normalizedChildAges = useMemo(
+    () => normalizeChildAges(childAgeInput),
+    [childAgeInput]
+  );
+  const childCount = Number(children) || 0;
+
   return (
     <form
       action="/search"
@@ -104,7 +125,8 @@ export function SearchForm() {
       }}
     >
       <input type="hidden" name="locale" value="ko-KR" />
-      <input type="hidden" name="children" value="0" />
+      <input type="hidden" name="children" value={children} />
+      <input type="hidden" name="childAges" value={normalizedChildAges} />
       <input type="hidden" name="destination" value="" />
 
       <div className="grid grid-cols-1 gap-wt-4 sm:grid-cols-4 sm:gap-wt-4">
@@ -112,7 +134,7 @@ export function SearchForm() {
           <HotelAutocomplete
             name="hotelName"
             label="호텔"
-            placeholder="예: 그랜드 하얏트 서울"
+            placeholder="예: Grand Hyatt Seoul"
             required
           />
         </div>
@@ -140,12 +162,34 @@ export function SearchForm() {
         </div>
         <div className="sm:col-span-1">
           <Select
+            label="아동"
+            name="children_visible"
+            options={CHILD_OPTIONS}
+            value={children}
+            onChange={(e) => setChildren(e.target.value)}
+          />
+        </div>
+        <div className="sm:col-span-1">
+          <Select
             label="객실 수"
             name="rooms"
             options={ROOM_OPTIONS}
             defaultValue="1"
           />
         </div>
+        {childCount > 0 && (
+          <div className="sm:col-span-2">
+            <Input
+              label="아동 나이"
+              placeholder="예: 6,3"
+              value={childAgeInput}
+              onChange={(e) => setChildAgeInput(e.target.value)}
+            />
+            <p className="mt-wt-1 text-wt-caption text-wt-text-secondary">
+              쉼표로 구분해 입력해 주세요. 예: 6,3
+            </p>
+          </div>
+        )}
       </div>
 
       <details className="hero-form-details group rounded-wt-md border-2 border-wt-border bg-wt-surface">
@@ -154,7 +198,7 @@ export function SearchForm() {
             className="inline-block shrink-0 text-wt-text-secondary transition-transform group-open:rotate-90"
             aria-hidden
           >
-            ▸
+            ▶
           </span>
           <span>예약 조건 더 입력하기</span>
           <span className="text-wt-caption font-normal text-wt-text-secondary">
@@ -163,8 +207,7 @@ export function SearchForm() {
         </summary>
         <div className="border-t border-wt-border px-wt-4 pb-wt-4 pt-wt-3">
           <p className="hero-form-details__title">
-            객실명, 조식, 취소, 세금, 결제 조건을 입력하면 더 보수적으로 비교해
-            드립니다.
+            객실명, 조식, 취소, 세금, 결제 조건을 입력하면 더 보수적으로 비교합니다.
           </p>
           <div className="grid grid-cols-2 gap-wt-4 sm:grid-cols-4">
             <Input

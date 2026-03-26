@@ -8,6 +8,19 @@ interface SearchSummaryBarProps {
   hotelName?: string;
 }
 
+function formatGuestSummary(query: SearchQuery): string {
+  const parts = [`성인 ${query.adults}명`];
+
+  if (query.children > 0) {
+    const ageText =
+      query.childAges.length > 0 ? ` (${query.childAges.join(", ")}세)` : "";
+    parts.push(`아동 ${query.children}명${ageText}`);
+  }
+
+  parts.push(`객실 ${query.rooms}개`);
+  return parts.join(" · ");
+}
+
 export function SearchSummaryBar({ query, hotelName }: SearchSummaryBarProps) {
   const displayName = hotelName ?? query.hotelName;
   const dateRange = formatDateRange(query.checkIn, query.checkOut);
@@ -19,9 +32,7 @@ export function SearchSummaryBar({ query, hotelName }: SearchSummaryBarProps) {
         <span className="mx-wt-2 text-wt-text-secondary">·</span>
         <span className="text-wt-text-secondary">{dateRange}</span>
         <span className="mx-wt-2 text-wt-text-secondary">·</span>
-        <span className="text-wt-text-secondary">
-          성인 {query.adults}명 · 객실 {query.rooms}개
-        </span>
+        <span className="text-wt-text-secondary">{formatGuestSummary(query)}</span>
         <span className="mx-wt-2 text-wt-text-secondary">·</span>
         <span className="text-wt-text-secondary">
           예약가 {formatPrice(query.userBookedPrice, query.currency)}
